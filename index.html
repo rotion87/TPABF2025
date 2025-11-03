@@ -5,111 +5,242 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>2025 孤芳小隊 GOOD FUN TEAM in 草率季</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    body{background:radial-gradient(ellipse at top,#fafaf7,#f3f1ec,#e7e3dc);} 
-    .card{border-radius:1rem;overflow:hidden;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.75);backdrop-filter:saturate(1.2) blur(2px)}
-    .grid{display:grid;gap:20px}
-    @media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
-    @media(min-width:1024px){.grid{grid-template-columns:repeat(3,1fr)}}
-    img{display:block;width:100%;height:18rem;object-fit:cover;background:#eee}
-    .cap{padding:14px}
+    body{background:radial-gradient(ellipse at top,#fafaf7,#f3f1ec,#e7e3dc)}
+    .line-clamp-1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+    .ripple-parent{position:relative;overflow:hidden}
+    .ripple-effect{position:absolute;border-radius:9999px;transform:scale(0);opacity:.25;background:rgba(0,0,0,.18);pointer-events:none;animation:ripple-anim .6s ease-out forwards}
+    @keyframes ripple-anim{to{transform:scale(12);opacity:0}}
   </style>
 </head>
 <body class="text-stone-900">
-  <main class="max-w-6xl mx-auto px-4 py-8 md:py-12">
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold">2025 孤芳小隊 GOOD FUN TEAM in 草率季</h1>
-      <p class="text-sm opacity-80 mt-2">作品影像、簡介與 POP 文案集中呈現（Github Pages 免建置版）。</p>
-    </header>
+  <div id="app"></div>
 
-    <section>
-      <h2 class="text-sm font-semibold mb-3">作品 Works</h2>
-      <div class="grid">
-        <!-- 展示物｜馬年公仔（先預留，等你補圖 exhibit-horse.png） -->
-        <article class="card">
-          <img src="./exhibit-horse.png" alt="展示物｜馬年公仔"
-               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=\'1.0\'?><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'><rect width=\'100%\' height=\'100%\' fill=\'%23f2f2f2\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'28\' fill=\'%23999\'>請上傳 exhibit-horse.png</text></svg>'">
-          <div class="cap">
-            <div class="text-lg font-semibold">展示物｜馬年公仔</div>
-            <div class="text-xs mt-1 px-2 py-1 inline-block rounded-full border">手作／公仔</div>
-            <p class="text-sm mt-2 opacity-90">對應賀卡主題的立體原型，約 15 公分高；現場展示手作質地與上色細節。</p>
-          </div>
-        </article>
+  <script>
+    // 全站 ripple 點擊特效
+    (function(){const s='button,a,img,[role="button"]';function e(t){const r=t.target.closest(s);if(!r)return;const n=r.tagName==='IMG'&&r.parentElement?r.parentElement:r,o=n.getBoundingClientRect(),a=(t.clientX||(o.left+o.width/2))-o.left,i=(t.clientY||(o.top+o.height/2))-o.top,l=Math.max(o.width,o.height),c=l*2,p=document.createElement('span');p.className='ripple-effect',p.style.width=p.style.height=c+'px',p.style.left=a-c/2+'px',p.style.top=i-c/2+'px',n.classList.add('ripple-parent'),n.appendChild(p),p.addEventListener('animationend',()=>p.remove(),{once:!0})}document.addEventListener('click',e,!0)})();
+  </script>
 
-        <!-- 展示物｜PIPO君 張子（你已上傳在 repo 根目錄） -->
-        <article class="card">
-          <img src="./exhibit-pipo.png" alt="展示物｜PIPO君 張子"
-               onerror="this.onerror=null;console.warn('exhibit-pipo.png 載入失敗，請確認檔名大小寫與路徑');">
-          <div class="cap">
-            <div class="text-lg font-semibold">展示物｜PIPO君 張子</div>
-            <div class="text-xs mt-1 px-2 py-1 inline-block rounded-full border">紙製張子</div>
-            <p class="text-sm mt-2 opacity-90">以日本警察吉祥物為主題的張子紙偶，保留手捏肌理與日光陰影，展現輕巧與份量感的平衡。</p>
-          </div>
-        </article>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-        <!-- 展示物｜孤芳收音機（你已上傳在 repo 根目錄） -->
-        <article class="card">
-          <img src="./exhibit-radio.png" alt="展示物｜孤芳收音機"
-               onerror="this.onerror=null;console.warn('exhibit-radio.png 載入失敗，請確認檔名大小寫與路徑');">
-          <div class="cap">
-            <div class="text-lg font-semibold">展示物｜孤芳收音機</div>
-            <div class="text-xs mt-1 px-2 py-1 inline-block rounded-full border">造型裝置</div>
-            <p class="text-sm mt-2 opacity-90">兩位角色結構融合的造型音響，天線延伸成為視覺焦點，是攤位的聽覺與視覺標誌。</p>
-          </div>
-        </article>
+    // 多語字典（簡版示意，可再補文案）
+    const i18n = {
+      zh: {
+        flag: '🇹🇼',
+        langLabel: '繁中',
+        siteTitle: '2025 孤芳小隊 GOOD FUN TEAM in 草率季',
+        siteDesc: '掃描 QR 後可瀏覽作品與設計理念。',
+        nav: { works:'作品', concept:'設計理念', about:'關於' },
+        btn: { readMore:'閱讀', brief:'精簡', full:'完整版', close:'關閉', enter:'進入網站' },
+        punch: { title:'打卡成功', tip:'已自動打卡，以下是你的到訪時間：' },
+        works: [
+          {
+            key:'inplace',
+            title:'《空心 In Place》', tag:'攝影／書籍 × 水泥物件', cover:'images/inplace.png',
+            brief:['摺頁小誌置入特製水泥磚；拉起摺頁時，磚體隨之層層「堆疊」。'],
+            full:[
+              '誕生於生活環境改變之後，是一場從日常延伸出的觀察與收集。為了布置新家，偶然看見以水泥空心磚堆疊的家具，從此留意街頭各式空心磚，並在拍攝與收集之間看見自己的投影。',
+              '摺頁小誌被置入特製水泥磚中；當觀者拉起摺頁，磚體會層層堆疊，象徵城市的堆砌與生活節奏的重組。水泥的重量與紙的柔軟交疊，記錄如何在新城市中安放自己。',
+              'In Place 不只是「在某處」，更是持續調整、尋找安放點的過程。'
+            ]
+          },
+          { key:'postbook', title:'《POSTBOOK – Taiwan / Japan》', tag:'貼紙簿', cover:'images/postbook.png',
+            brief:['以「護照」為靈感：台灣篇記錄城市物件；日本篇收錄東京標語與吉祥物。'],
+            full:['貼紙成為移動的語言——在不同城市留下遊走的痕跡。']
+          },
+          { key:'handit', title:'《Hand-it 手心貼》', tag:'便利貼', cover:'images/handit.png',
+            brief:['怕忘記的事，寫在手心就好。'],
+            full:['靈感來自把怕忘記的事寫在手上的習慣；把這個動作變成能分享的便利貼，讓提醒不只留在手上，也能留在生活裡。']
+          },
+          { key:'softdrinks', title:'《Soft Drinks》', tag:'絲巾 × 鋁罐包裝', cover:'images/softdrinks.png',
+            brief:['將絲巾收納於鋁罐中，作為「情緒罐裝」的象徵。'],
+            full:['柔軟的布料與堅硬容器對比，呈現被封存卻仍在流動的感受。']
+          },
+          { key:'horsecard', title:'《孤芳小隊 馬年賀卡》', tag:'孔版印刷 × 原型公仔', cover:'images/horsecard.png',
+            brief:['搖搖馬 × 兩位角色（老鼠／雪貂） × 賽馬意象。'],
+            full:['手捏原型上色後拍攝，轉為孔版印刷明信片，現場亦展出原型公仔。']
+          },
+          { key:'exhibit-horse', title:'展示物｜馬年公仔', tag:'手作／公仔', cover:'./exhibit-horse.png',
+            brief:['對應賀卡主題的立體原型，約 15 公分高。'],
+            full:['展示手作質地與上色細節。若尚未上傳圖片，將顯示預設提醒。']
+          },
+          { key:'exhibit-pipo', title:'展示物｜PIPO君 張子', tag:'紙製張子', cover:'./exhibit-pipo.png',
+            brief:['以日本警察吉祥物為主題的張子紙偶。'],
+            full:['保留手捏肌理與日光陰影，展現輕巧與份量感的平衡。']
+          },
+          { key:'exhibit-radio', title:'展示物｜孤芳收音機', tag:'造型裝置', cover:'./exhibit-radio.png',
+            brief:['兩位角色結構融合的造型音響，天線成為視覺焦點。'],
+            full:['成為攤位的聽覺與視覺標誌。']
+          },
+        ],
+        concept:['關注城市中的暫居、移動與安放；以「柔軟 × 堅固」的媒材對位，談記憶與生活距離。'],
+        about:[
+          '孤芳小隊 GOOD FUN TEAM 由 Rotion87 與羅共同經營。',
+          'Rotion87：攝影／書籍／物件設計',
+          '羅（l72uo_）：造型／手作／角色設定'
+        ]
+      },
+      en: { flag:'🇺🇸', langLabel:'EN' },
+      ja: { flag:'🇯🇵', langLabel:'日本語' },
+      ko: { flag:'🇰🇷', langLabel:'한국어' }
+    };
 
-        <!-- 其他作品（先預留路徑到 /images；等你之後放圖進 images/ 資料夾） -->
-        <article class="card">
-          <img src="images/inplace.png" alt="《空心 In Place》"
-               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=\'1.0\'?><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'><rect width=\'100%\' height=\'100%\' fill=\'%23f2f2f2\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'28\' fill=\'%23999\'>images/inplace.png 尚未上傳</text></svg>'">
-          <div class="cap">
-            <div class="text-lg font-semibold">《空心 In Place》</div>
-            <div class="text-xs mt-1 px-2 py-1 inline-block rounded-full border">攝影／書籍 × 水泥物件</div>
-            <p class="text-sm mt-2 opacity-90">摺頁小誌置入特製水泥磚；拉起摺頁時，磚體隨之層層「堆疊」。</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <img src="images/postbook.png" alt="《POSTBOOK – Taiwan / Japan》"
-               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=\'1.0\'?><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'><rect width=\'100%\' height=\'100%\' fill=\'%23f2f2f2\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'28\' fill=\'%23999\'>images/postbook.png 尚未上傳</text></svg>'">
-          <div class="cap">
-            <div class="text-lg font-semibold">《POSTBOOK – Taiwan / Japan》</div>
-            <div class="text-xs mt-1 px-2 py-1 inline-block rounded-full border">貼紙簿</div>
-            <p class="text-sm mt-2 opacity-90">台灣篇記錄街頭物件；日本篇收錄標語與吉祥物。</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <img src="images/handit.png" alt="《Hand-it 手心貼》"
-               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=\'1.0\'?><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'><rect width=\'100%\' height=\'100%\' fill=\'%23f2f2f2\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'28\' fill=\'%23999\'>images/handit.png 尚未上傳</text></svg>'">
-          <div class="cap">
-            <div class="text-lg font-semibold">《Hand-it 手心貼》</div>
-            <div class="text-xs mt-1 px-2 py-1 inline-block rounded-full border">便利貼</div>
-            <p class="text-sm mt-2 opacity-90">怕忘記的事，寫在手心就好。</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <img src="images/softdrinks.png" alt="《Soft Drinks》"
-               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=\'1.0\'?><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'><rect width=\'100%\' height=\'100%\' fill=\'%23f2f2f2\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'28\' fill=\'%23999\'>images/softdrinks.png 尚未上傳</text></svg>'">
-          <div class="cap">
-            <div class="text-lg font-semibold">《Soft Drinks》</div>
-            <div class="text-xs mt-1 px-2 py-1 inline-block rounded-full border">絲巾 × 鋁罐包裝</div>
-            <p class="text-sm mt-2 opacity-90">將絲巾收納於鋁罐中，作為「情緒罐裝」的象徵。</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <img src="images/horsecard.png" alt="《孤芳小隊 馬年賀卡》"
-               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=\'1.0\'?><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'><rect width=\'100%\' height=\'100%\' fill=\'%23f2f2f2\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'28\' fill=\'%23999\'>images/horsecard.png 尚未上傳</text></svg>'">
-          <div class="cap">
-            <div class="text-lg font-semibold">《孤芳小隊 馬年賀卡》</div>
-            <div class="text-xs mt-1 px-2 py-1 inline-block rounded-full border">孔版印刷 × 原型公仔</div>
-            <p class="text-sm mt-2 opacity-90">搖搖馬結合兩位角色（老鼠／雪貂）與賽馬意象。</p>
-          </div>
-        </article>
+    // 頂部固定語言切換（國旗 Emoji）
+    const LangSwitcher = ({ current, onChange }) => (
+      <div className="fixed left-4 top-4 z-50 flex items-center gap-2 bg-white/80 border rounded-full px-2 py-1 shadow">
+        {Object.entries(i18n).map(([code, conf]) => (
+          <button key={code} onClick={()=>onChange(code)} title={conf.langLabel}
+            className={`text-lg leading-none px-2 py-1 rounded-full ${current===code?'bg-black text-white':'hover:bg-black/5'}`}>
+            {conf.flag}
+          </button>
+        ))}
       </div>
-    </section>
-  </main>
+    );
+
+    // 作品卡 & Modal（含「精簡／完整版」切換）
+    const WorkCard = ({ w, onOpen }) => (
+      <div className="rounded-2xl p-0 shadow-sm border bg-white/70 overflow-hidden">
+        <button className="block w-full" onClick={()=>onOpen(w)} aria-label={`Open ${w.title}`}>
+          <img src={w.cover} alt={w.title} className="w-full h-48 md:h-64 object-cover"
+               onError={(e)=>{e.currentTarget.onerror=null;e.currentTarget.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'><rect width='100%' height='100%' fill='%23f2f2f2'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='28' fill='%23999'>${w.cover} 尚未上傳</text></svg>`);}} />
+        </button>
+        <div className="p-5">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold leading-snug line-clamp-1">{w.title}</h3>
+            {w.tag && <span className="text-xs px-2 py-1 rounded-full border bg-white/60">{w.tag}</span>}
+          </div>
+          <p className="text-sm opacity-75 mt-2">{w.brief?.[0]}</p>
+          <div className="mt-3 text-xs opacity-60">點擊圖片查看完整介紹</div>
+        </div>
+      </div>
+    );
+
+    const WorkModal = ({ open, onClose, w, t }) => {
+      const [tab,setTab]=useState('brief');
+      useEffect(()=>{setTab('brief')},[w]);
+      if(!open||!w) return null;
+      return (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+          <div className="absolute inset-x-4 md:inset-x-0 md:left-1/2 md:-translate-x-1/2 top-14 md:top-20 md:w-[760px] bg-white rounded-2xl shadow-2xl border">
+            <div className="p-5 md:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold">{w.title}</h3>
+                  {w.tag && <div className="text-xs mt-1 px-2 py-1 inline-block rounded-full border bg-white/70">{w.tag}</div>}
+                </div>
+                <button onClick={onClose} className="w-8 h-8 rounded-full border hover:bg-stone-50">✕</button>
+              </div>
+
+              {/* Tabs: 精簡／完整版 */}
+              <div className="mt-4 flex items-center gap-2 text-sm">
+                <button className={`px-3 py-1 rounded-full border ${tab==='brief'?'bg-black text-white border-black':'bg-white'}`} onClick={()=>setTab('brief')}>{t.btn.brief}</button>
+                <button className={`px-3 py-1 rounded-full border ${tab==='full'?'bg-black text-white border-black':'bg-white'}`} onClick={()=>setTab('full')}>{t.btn.full}</button>
+              </div>
+              <div className="mt-3 space-y-2 text-sm leading-relaxed">
+                {(tab==='brief'?w.brief:w.full)?.map((p,i)=>(<p key={i}>{p}</p>))}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 首次進站「打卡機」覆蓋層：自動打卡並印出當下時間
+    const PunchOverlay = ({ t, onEnter }) => {
+      const [ts,setTs]=useState('');
+      useEffect(()=>{
+        const fmt=(n)=>n.toString().padStart(2,'0');
+        const now=new Date();
+        const time=`${fmt(now.getHours())}:${fmt(now.getMinutes())}:${fmt(now.getSeconds())}`;
+        const date=`${now.getFullYear()}-${fmt(now.getMonth()+1)}-${fmt(now.getDate())}`;
+        setTs(`${date} ${time}`);
+      },[]);
+      return (
+        <div className="fixed inset-0 z-[60] bg-white/80 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="w-full max-w-xl bg-white border rounded-2xl shadow-2xl overflow-hidden">
+            <div className="relative">
+              {/* 使用者將提供的打卡機照片 */}
+              <img src="images/punch.png" alt="打卡機" className="w-full h-64 object-contain bg-white"
+                   onError={(e)=>{e.currentTarget.onerror=null;e.currentTarget.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="400"><rect width="100%" height="100%" fill="#f6f6f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="20" fill="#999">請上傳 images/punch.png</text></svg>`);}}/>
+              {/* 打卡票根 */}
+              <div className="absolute left-4 bottom-4 bg-white border rounded-lg shadow p-3">
+                <div className="text-xs opacity-60">{t.punch.title}</div>
+                <div className="font-mono font-semibold mt-1">{ts || '—:—:—'}</div>
+                <div className="text-[11px] opacity-60 mt-1">{t.punch.tip}</div>
+              </div>
+            </div>
+            <div className="p-4 flex items-center justify-end">
+              <button onClick={onEnter} className="px-4 py-2 rounded-full border bg-black text-white text-sm">{t.btn.enter}</button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    function App(){
+      const [lang,setLang]=useState('zh');
+      const t=i18n[lang]||i18n.zh;
+      const [open,setOpen]=useState(null);
+      const [showPunch,setShowPunch]=useState(true);
+
+      return (
+        <div className="min-h-screen">
+          <LangSwitcher current={lang} onChange={setLang} />
+
+          {/* 右上：兩個 IG 圖示改用自備圖片 */}
+          <div className="fixed right-4 top-4 z-40 flex flex-col gap-3">
+            <a href="https://www.instagram.com/rotion87" target="_blank" className="block w-12 h-12 rounded-full border bg-white shadow hover:scale-105 active:scale-95 transition overflow-hidden" aria-label="IG rotion87">
+              <img src="images/ig-rotion.png" alt="IG rotion87" className="w-full h-full object-cover"
+                   onError={(e)=>{e.currentTarget.onerror=null;e.currentTarget.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'96\' height=\'96\'><rect width=\'100%\' height=\'100%\' fill=\'#fff\'/><text x=\'50%\' y=\'52%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'12\' fill=\'#999\'>rotion87</text></svg>`);}}/>
+            </a>
+            <a href="https://www.instagram.com/l72uo_" target="_blank" className="block w-12 h-12 rounded-full border bg-white shadow hover:scale-105 active:scale-95 transition overflow-hidden" aria-label="IG l72uo_">
+              <img src="images/ig-l72uo.png" alt="IG l72uo_" className="w-full h-full object-cover"
+                   onError={(e)=>{e.currentTarget.onerror=null;e.currentTarget.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'96\' height=\'96\'><rect width=\'100%\' height=\'100%\' fill=\'#fff\'/><text x=\'50%\' y=\'52%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'12\' fill=\'#999\'>l72uo_</text></svg>`);}}/>
+            </a>
+          </div>
+
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12">
+            <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold">{t.siteTitle}</h1>
+                <p className="text-sm mt-1 opacity-80">{t.siteDesc}</p>
+              </div>
+            </header>
+
+            {/* 作品 */}
+            <section className="mt-8">
+              <h3 className="text-sm font-medium mb-4">{t.nav.works}</h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {t.works.map(w=> (
+                  <WorkCard key={w.key} w={w} onOpen={setOpen} />
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-10 grid md:grid-cols-2 gap-4">
+              <div className="rounded-2xl p-5 shadow-sm border bg-white/70">
+                <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-semibold">{t.nav.concept}</h3><span className="text-xs px-2 py-1 rounded-full border bg-white/60">Concept</span></div>
+                <div className="mt-3 space-y-2 text-sm leading-relaxed">{t.concept?.map((p,i)=>(<p key={i}>{p}</p>))}</div>
+              </div>
+              <div className="rounded-2xl p-5 shadow-sm border bg-white/70">
+                <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-semibold">{t.nav.about}</h3><span className="text-xs px-2 py-1 rounded-full border bg-white/60">Info</span></div>
+                <div className="mt-3 space-y-2 text-sm leading-relaxed">{t.about?.map((p,i)=>(<p key={i}>{p}</p>))}</div>
+              </div>
+            </section>
+          </div>
+
+          <WorkModal open={!!open} onClose={()=>setOpen(null)} w={open} t={t} />
+          {showPunch && <PunchOverlay t={t} onEnter={()=>setShowPunch(false)} />}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+  </script>
 </body>
 </html>
