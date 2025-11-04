@@ -88,7 +88,7 @@
     };
 
     const LangSwitcher = ({ current, onChange }) => (
-      <div className="fixed left-4 top-4 z-50 flex items-center gap-2 px-3 py-2 bg-white lang-pill rounded-full">
+<div className="fixed left-4 bottom-4 z-50 flex items-center gap-2 px-3 py-2 bg-white lang-pill rounded-full">
         {Object.entries(i18n).map(([code, conf]) => (
           <button key={code} onClick={()=>onChange(code)} title={conf.langLabel}
             className={`text-xl leading-none px-2 py-1 rounded-full ${current===code?'bg-black text-white':'hover:bg-black/5'}`}>{conf.flag}</button>
