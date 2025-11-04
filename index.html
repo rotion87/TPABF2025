@@ -10,10 +10,7 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    :root{
-      --red:#ff2b2b; --blue:#13a0ff; --yellow:#ffe200; --green:#00b050;
-      --ink:#101010; --paper:#fffbe9; --cream:#fff5c2; --dot:#0a5bd6;
-    }
+    :root{ --red:#ff2b2b; --blue:#13a0ff; --yellow:#ffe200; --green:#00b050; --ink:#101010; --paper:#fffbe9; --cream:#fff5c2; --dot:#0a5bd6; }
     html,body{height:100%}
     body{font-family:'Noto Sans TC',system-ui,-apple-system,Segoe UI,Roboto,'PingFang TC','Microsoft JhengHei',sans-serif;color:var(--ink)}
     .bg-fruit{
@@ -38,36 +35,24 @@
     .modal-body{position:absolute;left:50%;transform:translateX(-50%);top:8vh;width:min(780px,92vw);background:#fff;border:4px solid #111;box-shadow:10px 10px 0 #111;border-radius:22px}
     @keyframes ripple-anim{to{transform:scale(12);opacity:0}}
 
-    /* 打卡互動 */
+    /* 打卡互動（拖曳入槽） */
     @keyframes stamp-pop{0%{transform:scale(.7) rotate(-6deg);opacity:0}60%{transform:scale(1.1) rotate(0deg);opacity:1}100%{transform:scale(1);opacity:1}}
-    .punch-slot{
-      position:absolute; left:50%; top:72%; transform:translate(-50%,-50%);
-      width:min(64%,520px); height:16px; background:#111; border-radius:6px; box-shadow:0 3px 0 #0005; opacity:.9;
-    }
+    .punch-slot{position:absolute; left:50%; top:72%; transform:translate(-50%,-50%); width:min(64%,520px); height:16px; background:#111; border-radius:6px; box-shadow:0 3px 0 #0005; opacity:.9;}
     .punch-card{
       position:absolute; left:50%; top:58%; transform:translate(-50%,-50%);
       width:min(58%,480px); max-width:90vw; aspect-ratio:3/2;
       border-radius:12px; box-shadow:8px 10px 0 #111; border:4px solid #111; background:#fff; overflow:hidden;
-      touch-action:none; user-select:none; cursor:grab; height:clamp(140px, 28vw, 240px);
-      z-index:19;
+      touch-action:none; user-select:none; cursor:grab; height:clamp(140px, 28vw, 240px); z-index:19;
     }
     .punch-card:active{cursor:grabbing}
-    .punch-stamp{
-      position:absolute; right:10px; bottom:10px; background:#fff; border:3px dashed #111; padding:.35rem .6rem; border-radius:8px;
-      font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:800; letter-spacing:.5px; opacity:0;
-    }
+    .punch-stamp{position:absolute; right:10px; bottom:10px; background:#fff; border:3px dashed #111; padding:.35rem .6rem; border-radius:8px; font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:800; letter-spacing:.5px; opacity:0;}
     .punch-stamp.show{animation:stamp-pop 420ms ease-out both}
     .fade-out{animation:fadeOut .5s ease forwards}
     @keyframes fadeOut{to{opacity:0;visibility:hidden}}
 
     /* 游動水果（留言板） */
     .float-layer{position:fixed; inset:0; pointer-events:none; z-index:5;}
-    .fruit-chip{
-      position:absolute; display:flex; align-items:center; gap:.35rem;
-      background:rgba(255,255,255,.9); border:3px solid #111; border-radius:999px; padding:.2rem .6rem;
-      box-shadow:4px 4px 0 #111; font-weight:800;
-      white-space:nowrap; transform:translate(-50%,-50%);
-    }
+    .fruit-chip{position:absolute; display:flex; align-items:center; gap:.35rem; background:rgba(255,255,255,.9); border:3px solid #111; border-radius:999px; padding:.2rem .6rem; box-shadow:4px 4px 0 #111; font-weight:800; white-space:nowrap; transform:translate(-50%,-50%);}
     .fruit-emoji{font-size:1.2rem; line-height:1;}
     .fruit-name{font-size:.82rem}
   </style>
@@ -84,7 +69,46 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    /* i18n（中文為主，其他語言之後再補文案也OK） */
+    /* === GAS API 設定 ===
+       步驟：把下面 API_URL 換成你部署後的 Web App URL（/exec）
+       若留空或不是 https，頁面會自動用 localStorage 先跑，之後再切換也OK */
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyqXdNd0VsgaDg3jNIMmL3A3dSYjnovi54AC-ze1buRO0mK7AMOLeo3JquQwpSSABU/exec';  // ←← 在這裡貼上你的 GAS Web App URL，如：'https://script.google.com/macros/s/XXXX/exec'
+    const FRUITS = ['🍎','🍌','🍊','🍇','🍉','🍍','🍓','🍑','🥝','🍐'];
+    const STORAGE_KEY = 'gft-guests-v1';
+
+    const useCloud = () => /^https?:\/\//.test(API_URL);
+
+    async function apiFetchGuests(){
+      if (!useCloud()){
+        // 本機模式
+        try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){ return []; }
+      }
+      // 雲端（GAS）
+      const res = await fetch(API_URL, { method:'GET' });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error||'fetch_failed');
+      return json.data || [];
+    }
+    async function apiAddGuest(name){
+      const fruit = FRUITS[Math.floor(Math.random()*FRUITS.length)];
+      if (!useCloud()){
+        // 本機模式
+        const list = await apiFetchGuests();
+        const next = [...list, {name, fruit}];
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); }catch(e){}
+        return {name, fruit};
+      }
+      // 雲端（GAS）
+      const res = await fetch(API_URL, {
+        method:'POST', headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ name, fruit })
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error||'post_failed');
+      return { name, fruit };
+    }
+
+    /* i18n（中文主） */
     const i18n = {
       zh: {
         flag:'🇹🇼', langLabel:'繁中',
@@ -93,11 +117,7 @@
         nav:{works:'作品',concept:'設計理念',about:'關於',board:'留言板'},
         btn:{brief:'精簡',full:'完整版',enter:'進入網站',close:'關閉',sign:'簽到'},
         punch:{title:'打卡成功',tip:'您到訪的時間：'},
-        board:{
-          title:'留言板 / 簽到',
-          hint:'輸入名字後送出，會化身為一顆水果在頁面游動 🍑',
-          input:'你的名字'
-        },
+        board:{ title:'留言板 / 簽到', hint:'輸入名字後送出，會化身為一顆水果在頁面游動 🍑', input:'你的名字' },
         works:[
           {key:'inplace',title:'《空心 In Place》',tag:'攝影／書籍 × 水泥物件',cover:'images/inplace.png',
            brief:['摺頁小誌置入特製水泥磚；拉起摺頁時，磚體隨之層層「堆疊」。'],
@@ -206,12 +226,7 @@
 
         const getPos=(e)=> e.touches?.[0] ? {x:e.touches[0].clientX,y:e.touches[0].clientY} : {x:e.clientX,y:e.clientY};
 
-        const onStart=(e)=>{
-          dragging=true;
-          const p=getPos(e);
-          startX=p.x; startY=p.y;
-          el.style.transition='none';
-        };
+        const onStart=(e)=>{ dragging=true; const p=getPos(e); startX=p.x; startY=p.y; el.style.transition='none'; };
         const onMove=(e)=>{
           if(!dragging) return;
           e.preventDefault();
@@ -259,25 +274,14 @@
         <div ref={wrapRef} className={`fixed inset-0 z-[60] bg-white/88 backdrop-blur-sm flex items-center justify-center p-6 ${done?'fade-out':''}`}>
           <div className="w-full max-w-3xl bg-white border-[4px] border-black rounded-2xl shadow-[10px_10px_0_#111] overflow-hidden">
             <div className="relative">
-              {/* 打卡機背景 */}
-              <img
-                src="punch.png"
-                alt="打卡機"
-                className="w-full max-h-[560px] object-contain bg-white"
-                onError={(e)=>{e.currentTarget.onerror=null;e.currentTarget.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420"><rect width="100%" height="100%" fill="#f6f6f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="20" fill="#999">請上傳 punch.png</text></svg>`);}}
-              />
-              {/* 卡槽（偏下） */}
+              <img src="punch.png" alt="打卡機" className="w-full max-h-[560px] object-contain bg-white" />
               <div ref={slotRef} className="punch-slot" style={{zIndex:15}}></div>
-
-              {/* 可拖曳卡片（根目錄 punch-card.png） */}
               <div ref={cardRef} className="punch-card">
-                <img src="punch-card.png" alt="" className="absolute inset-0 w-full h-full object-cover"
-                     onError={(e)=>{ e.currentTarget.style.display='none'; }} />
+                <img src="punch-card.png" alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e)=>{ e.currentTarget.style.display='none'; }} />
                 <div className="absolute left-2 top-2 bg-[var(--yellow)] border-4 border-black rounded-lg shadow-[6px_6px_0_#111] px-2 py-1 label">GOOD FUN TEAM</div>
                 <div ref={stampRef} className="punch-stamp">{ts || '—:—:—'}</div>
               </div>
             </div>
-
             <div className="p-3 flex items-center justify-end">
               <span className="text-xs opacity-60 mr-auto pl-2">把卡片拖到打卡槽以進入網站</span>
             </div>
@@ -286,43 +290,30 @@
       );
     };
 
-    /* 游動水果留言板（localStorage 保存） */
-    const FRUITS = ['🍎','🍌','🍊','🍇','🍉','🍍','🍓','🍑','🥝','🍐'];
-    const STORAGE_KEY = 'gft-guests-v1';
-
+    /* 游動水果圖層 */
     const FruitLayer = ({ items }) => {
       const layerRef = useRef(null);
       const animRef  = useRef(null);
       const objsRef  = useRef([]);
 
       useEffect(()=>{
-        const layer = layerRef.current;
-        if(!layer) return;
-
-        // 清空
-        layer.innerHTML = '';
-        objsRef.current = [];
-
-        // 產生 DOM + 初始狀態
-        items.forEach((it, idx)=>{
+        const layer = layerRef.current; if(!layer) return;
+        layer.innerHTML = ''; objsRef.current = [];
+        items.forEach((it)=>{
           const el = document.createElement('div');
           el.className = 'fruit-chip';
           el.innerHTML = `<span class="fruit-emoji">${it.fruit}</span><span class="fruit-name">${it.name}</span>`;
           layer.appendChild(el);
-
           const vw = window.innerWidth, vh = window.innerHeight;
-          const x = (it.x ?? Math.random()*vw);
-          const y = (it.y ?? Math.random()*vh*0.8 + vh*0.1);
-          const vx = (it.vx ?? (Math.random()*0.6+0.2) * (Math.random()<0.5?-1:1));
-          const vy = (it.vy ?? (Math.random()*0.4+0.1) * (Math.random()<0.5?-1:1));
+          const x = Math.random()*vw, y = Math.random()*vh*0.8 + vh*0.1;
+          const vx = (Math.random()*0.6+0.2) * (Math.random()<0.5?-1:1);
+          const vy = (Math.random()*0.4+0.1) * (Math.random()<0.5?-1:1);
           objsRef.current.push({el, x, y, vx, vy});
         });
-
         const tick = ()=>{
           const vw = window.innerWidth, vh = window.innerHeight;
           objsRef.current.forEach(o=>{
             o.x += o.vx; o.y += o.vy;
-            // 邊界反彈
             if (o.x < 40 || o.x > vw-40) o.vx *= -1;
             if (o.y < 60 || o.y > vh-60) o.vy *= -1;
             o.el.style.left = o.x + 'px';
@@ -337,26 +328,34 @@
       return <div ref={layerRef} className="float-layer"></div>;
     };
 
+    /* 簽到留言板（自動判斷：GAS 或 localStorage） */
     const SignBoard = ({ t }) => {
       const [name,setName] = useState('');
       const [list,setList] = useState([]);
+      const [loading,setLoading] = useState(true);
+      const [posting,setPosting] = useState(false);
+      const [err,setErr] = useState('');
 
       useEffect(()=>{
-        try{
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if(raw) setList(JSON.parse(raw));
-        }catch(e){}
+        (async ()=>{
+          try{
+            setLoading(true);
+            const data = await apiFetchGuests();
+            setList(data);
+          }catch(e){ setErr('無法載入留言板，稍後再試'); }
+          finally{ setLoading(false); }
+        })();
       },[]);
-      useEffect(()=>{
-        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
-      },[list]);
 
-      const add = ()=>{
-        const n = name.trim();
-        if(!n) return;
-        const fruit = FRUITS[Math.floor(Math.random()*FRUITS.length)];
-        setList(prev=>[...prev, {name:n, fruit}]);
-        setName('');
+      const add = async ()=>{
+        const n = name.trim(); if(!n) return;
+        try{
+          setPosting(true);
+          const obj = await apiAddGuest(n);
+          setList(prev=>[...prev, obj]);
+          setName('');
+        }catch(e){ setErr('送出失敗，稍後再試'); }
+        finally{ setPosting(false); }
       };
 
       return (
@@ -364,18 +363,16 @@
           <FruitLayer items={list} />
           <div className="card p-6 mt-10">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-2xl label">{t.board.title}</h3>
-              <Badge>BOARD</Badge>
+              <h3 className="text-2xl label">{t.board.title}</h3><Badge>BOARD</Badge>
             </div>
-            <p className="text-sm opacity-80 mt-2">{t.board.hint}</p>
+            <p className="text-sm opacity-80 mt-2">{t.board.hint}（目前模式：{useCloud()?'雲端':'本機'}）</p>
             <div className="mt-4 flex gap-2">
-              <input value={name} onChange={e=>setName(e.target.value)} placeholder={t.board.input}
-                     className="flex-1 rounded-xl border-2 border-black px-3 py-2" />
-              <button onClick={add} className="btn px-4 py-2 rounded-xl bg-[var(--yellow)]">{t.btn.sign}</button>
+              <input value={name} onChange={e=>setName(e.target.value)} placeholder={t.board.input} className="flex-1 rounded-xl border-2 border-black px-3 py-2" />
+              <button onClick={add} disabled={posting} className="btn px-4 py-2 rounded-xl bg-[var(--yellow)]">{posting ? '送出中…' : t.btn.sign}</button>
             </div>
-            {list.length>0 && (
-              <div className="mt-4 text-sm opacity-70">目前共 {list.length} 位來賓</div>
-            )}
+            {loading && <div className="mt-3 text-sm opacity-70">載入中…</div>}
+            {err && <div className="mt-3 text-sm text-red-600">{err}</div>}
+            {!loading && list.length>0 && (<div className="mt-4 text-sm opacity-70">目前共 {list.length} 位來賓</div>)}
           </div>
         </>
       );
@@ -390,8 +387,6 @@
       return (
         <div className="min-h-screen relative z-10">
           <LangSwitcher current={lang} onChange={setLang} />
-
-          {/* IG（使用你已改成小寫的 .png 檔名） */}
           <div className="fixed right-4 top-4 z-40 flex flex-col gap-3">
             <a href="https://www.instagram.com/rotion87" target="_blank" className="block w-12 h-12 rounded-full border-[3px] border-black bg-white shadow-[6px_6px_0_#111] overflow-hidden" aria-label="IG rotion87">
               <img src="ig-rotion.png" alt="IG rotion87" className="w-full h-full object-cover"/>
@@ -425,7 +420,7 @@
               </div>
             </section>
 
-            {/* 留言板／簽到 */}
+            {/* 離線/雲端 簽到留言板 */}
             <SignBoard t={t} />
           </div>
 
