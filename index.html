@@ -37,6 +37,42 @@
     .modal-back{position:absolute;inset:0;background:rgba(16,16,16,.55)}
     .modal-body{position:absolute;left:50%;transform:translateX(-50%);top:8vh;width:min(780px,92vw);background:#fff;border:4px solid #111;box-shadow:10px 10px 0 #111;border-radius:22px}
     @keyframes ripple-anim{to{transform:scale(12);opacity:0}}
+
+    /* Punch card animation */
+    @keyframes card-slide-in {
+      0%   { transform: translate(-50%, -130%) rotate(-6deg); }
+      70%  { transform: translate(-50%, -26%)  rotate(-1deg); }
+      100% { transform: translate(-50%,  -12%) rotate(0deg); }
+    }
+    @keyframes stamp-pop {
+      0%   { transform: scale(0.7) rotate(-6deg); opacity: 0; }
+      60%  { transform: scale(1.1) rotate(0deg);  opacity: 1; }
+      100% { transform: scale(1.0);               opacity: 1; }
+    }
+    .punch-slot {
+      position:absolute; left:50%; top:72%; transform:translate(-50%,-50%);
+      width:min(64%, 520px); height:14px; background:#111; border-radius:6px;
+      box-shadow:0 3px 0 #00000055; opacity:.85;
+    }
+    .punch-card {
+      position:absolute; left:50%; top:62%; transform:translate(-50%, -12%);
+      width:min(58%, 480px); max-width:90vw; aspect-ratio:3/2;
+      border-radius:12px; box-shadow:8px 10px 0 #111; border:4px solid #111;
+      background:white; overflow:hidden;
+    }
+    .punch-card.anim-enter { animation: card-slide-in 900ms cubic-bezier(.2,.8,.2,1) both; }
+    .punch-stamp {
+      position:absolute; right:10px; bottom:10px;
+      background:#fff; border:3px dashed #111; padding:.35rem .6rem; border-radius:8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      font-weight:800; letter-spacing:.5px; transform-origin: 100% 100%;
+    }
+    .punch-stamp.anim-pop { animation: stamp-pop 420ms ease-out 780ms both; }
+    .punch-brand {
+      position:absolute; left:10px; top:10px; font-weight:900;
+      background:#ffe200; border:3px solid #111; padding:.2rem .5rem; border-radius:8px;
+      box-shadow:4px 4px 0 #111; font-family: 'Bangers', system-ui;
+    }
   </style>
 </head>
 <body class="bg-fruit">
@@ -44,6 +80,7 @@
   <div id="app" class="relative z-10"></div>
 
   <script>
+    // 全站 ripple 效果
     (function(){const s='button,a,img,[role="button"]';function e(t){const r=t.target.closest(s);if(!r)return;const n=r.tagName==='IMG'&&r.parentElement?r.parentElement:r,o=n.getBoundingClientRect(),a=(t.clientX||(o.left+o.width/2))-o.left,i=(t.clientY||(o.top+o.height/2))-o.top,l=Math.max(o.width,o.height),c=l*2,p=document.createElement('span');p.className='ripple-effect';p.style.cssText=`position:absolute;border-radius:9999px;transform:scale(0);opacity:.25;background:rgba(0,0,0,.18);pointer-events:none;left:${a-c/2}px;top:${i-c/2}px;width:${c}px;height:${c}px;animation:ripple-anim .6s ease-out forwards`;n.style.position='relative';n.style.overflow='hidden';n.appendChild(p);p.addEventListener('animationend',()=>p.remove(),{once:!0})}document.addEventListener('click',e,!0)})();
   </script>
 
@@ -87,8 +124,9 @@
       en:{flag:'🇺🇸',langLabel:'EN'}, ja:{flag:'🇯🇵',langLabel:'日本語'}, ko:{flag:'🇰🇷',langLabel:'한국어'}
     };
 
+    /* 左下角語言切換 */
     const LangSwitcher = ({ current, onChange }) => (
-<div className="fixed left-4 bottom-4 z-50 flex items-center gap-2 px-3 py-2 bg-white lang-pill rounded-full">
+      <div className="fixed left-4 bottom-4 z-50 flex items-center gap-2 px-3 py-2 bg-white lang-pill rounded-full">
         {Object.entries(i18n).map(([code, conf]) => (
           <button key={code} onClick={()=>onChange(code)} title={conf.langLabel}
             className={`text-xl leading-none px-2 py-1 rounded-full ${current===code?'bg-black text-white':'hover:bg-black/5'}`}>{conf.flag}</button>
@@ -142,28 +180,43 @@
       );
     };
 
+    /* 首次進站「打卡機」覆蓋層（卡片插入 + 壓印時間 + 音效） */
     const PunchOverlay = ({ t, onEnter }) => {
       const [ts,setTs]=useState('');
+      const [entered,setEntered]=useState(false);
+
       useEffect(()=>{
         const fmt=(n)=>n.toString().padStart(2,'0');
         const now=new Date();
         const s=`${now.getFullYear()}-${fmt(now.getMonth()+1)}-${fmt(now.getDate())} ${fmt(now.getHours())}:${fmt(now.getMinutes())}:${fmt(now.getSeconds())}`;
         setTs(s);
+
+        // 輕微震動 + 音效
+        if (navigator.vibrate) setTimeout(()=>navigator.vibrate(25), 850);
+        try { setTimeout(()=>{ new Audio('punch.mp3').play().catch(()=>{}); }, 820); } catch(e) {}
       },[]);
+
       return (
-        <div className="fixed inset-0 z-[60] bg-white/85 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="w-full max-w-2xl bg-white border-[4px] border-black rounded-2xl shadow-[10px_10px_0_#111] overflow-hidden">
+        <div className="fixed inset-0 z-[60] bg-white/88 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="w-full max-w-3xl bg-white border-[4px] border-black rounded-2xl shadow-[10px_10px_0_#111] overflow-hidden">
             <div className="relative">
-              <img src="punch.png" alt="打卡機" className="w-full max-h-[420px] object-contain bg-white"
-                   onError={(e)=>{e.currentTarget.onerror=null;e.currentTarget.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='900' height='420'><rect width='100%' height='100%' fill='#f6f6f6'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='#999'>請上傳 punch.png</text></svg>`);}}/>
-              <div className="absolute left-4 bottom-4 bg-white border-4 border-black rounded-xl shadow-[6px_6px_0_#111] p-3">
-                <div className="label text-lg">{t.punch.title}</div>
-                <div className="font-mono font-bold mt-1 text-[16px]">{ts||'—:—:—'}</div>
-                <div className="text-xs mt-1 opacity-70">{t.punch.tip}</div>
+              <img
+                src="punch.png"
+                alt="打卡機"
+                className="w-full max-h-[560px] object-contain bg-white"
+                onError={(e)=>{e.currentTarget.onerror=null;e.currentTarget.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420"><rect width="100%" height="100%" fill="#f6f6f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="20" fill="#999">請上傳 punch.png</text></svg>`);}}
+              />
+              <div className="punch-slot"></div>
+              <div className="punch-card anim-enter bg-white">
+                <img src="images/punch-card.png" alt="" className="absolute inset-0 w-full h-full object-cover"
+                     onError={(e)=>{ e.currentTarget.style.display='none'; }} />
+                <div className="punch-brand">GOOD FUN TEAM</div>
+                <div className="punch-stamp anim-pop">{ts || '—:—:—'}</div>
               </div>
             </div>
-            <div className="p-4 flex items-center justify-end">
-              <button onClick={onEnter} className="btn bg-[var(--yellow)] px-5 py-2 rounded-full">{t.btn.enter}</button>
+            <div className="p-4 flex items-center justify-end gap-3">
+              {!entered && <span className="text-sm opacity-70">{t.punch.title} · {t.punch.tip}<b className="font-mono">{ts}</b></span>}
+              <button onClick={()=>{ setEntered(true); onEnter(); }} className="btn bg-[var(--yellow)] px-5 py-2 rounded-full">{t.btn.enter}</button>
             </div>
           </div>
         </div>
@@ -179,12 +232,13 @@
       return (
         <div className="min-h-screen relative z-10">
           <LangSwitcher current={lang} onChange={setLang} />
+
           <div className="fixed right-4 top-4 z-40 flex flex-col gap-3">
             <a href="https://www.instagram.com/rotion87" target="_blank" className="block w-12 h-12 rounded-full border-[3px] border-black bg-white shadow-[6px_6px_0_#111] overflow-hidden" aria-label="IG rotion87">
-              <img src="ig-rotion.png" alt="IG rotion87" className="w-full h-full object-cover"/>
+              <img src="ig-rotion.PNG" alt="IG rotion87" className="w-full h-full object-cover"/>
             </a>
             <a href="https://www.instagram.com/l72uo_" target="_blank" className="block w-12 h-12 rounded-full border-[3px] border-black bg-white shadow-[6px_6px_0_#111] overflow-hidden" aria-label="IG l72uo_">
-              <img src="ig-l72uo.png" alt="IG l72uo_" className="w-full h-full object-cover"/>
+              <img src="ig-l72uo.PNG" alt="IG l72uo_" className="w-full h-full object-cover"/>
             </a>
           </div>
 
