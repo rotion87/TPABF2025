@@ -48,7 +48,8 @@
       position:absolute; left:50%; top:58%; transform:translate(-50%,-50%);
       width:min(58%,480px); max-width:90vw; aspect-ratio:3/2;
       border-radius:12px; box-shadow:8px 10px 0 #111; border:4px solid #111; background:#fff; overflow:hidden;
-      touch-action:none; user-select:none; cursor:grab;
+      touch-action:none; user-select:none; cursor:grab; height:clamp(140px, 28vw, 240px);
+      z-index:19;
     }
     .punch-card:active{cursor:grabbing}
     .punch-stamp{
@@ -58,6 +59,17 @@
     .punch-stamp.show{animation:stamp-pop 420ms ease-out both}
     .fade-out{animation:fadeOut .5s ease forwards}
     @keyframes fadeOut{to{opacity:0;visibility:hidden}}
+
+    /* 游動水果（留言板） */
+    .float-layer{position:fixed; inset:0; pointer-events:none; z-index:5;}
+    .fruit-chip{
+      position:absolute; display:flex; align-items:center; gap:.35rem;
+      background:rgba(255,255,255,.9); border:3px solid #111; border-radius:999px; padding:.2rem .6rem;
+      box-shadow:4px 4px 0 #111; font-weight:800;
+      white-space:nowrap; transform:translate(-50%,-50%);
+    }
+    .fruit-emoji{font-size:1.2rem; line-height:1;}
+    .fruit-name{font-size:.82rem}
   </style>
 </head>
 <body class="bg-fruit">
@@ -65,21 +77,27 @@
   <div id="app" class="relative z-10"></div>
 
   <script>
-    // 全站 ripple
+    /* 全站 ripple */
     (function(){const s='button,a,img,[role="button"]';function e(t){const r=t.target.closest(s);if(!r)return;const n=r.tagName==='IMG'&&r.parentElement?r.parentElement:r,o=n.getBoundingClientRect(),a=(t.clientX||(o.left+o.width/2))-o.left,i=(t.clientY||(o.top+o.height/2))-o.top,l=Math.max(o.width,o.height),c=l*2,p=document.createElement('span');p.className='ripple-effect';p.style.cssText=`position:absolute;border-radius:9999px;transform:scale(0);opacity:.25;background:rgba(0,0,0,.18);pointer-events:none;left:${a-c/2}px;top:${i-c/2}px;width:${c}px;height:${c}px;animation:ripple-anim .6s ease-out forwards`;n.style.position='relative';n.style.overflow='hidden';n.appendChild(p);p.addEventListener('animationend',()=>p.remove(),{once:!0})}document.addEventListener('click',e,!0)})();
   </script>
 
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
+    /* i18n（中文為主，其他語言之後再補文案也OK） */
     const i18n = {
       zh: {
         flag:'🇹🇼', langLabel:'繁中',
         siteTitle:'2025 孤芳小隊 GOOD FUN TEAM in 草率季',
         siteDesc:'水果店風格・作品與設計理念一頁式展覽',
-        nav:{works:'作品',concept:'設計理念',about:'關於'},
-        btn:{brief:'精簡',full:'完整版',enter:'進入網站',close:'關閉'},
+        nav:{works:'作品',concept:'設計理念',about:'關於',board:'留言板'},
+        btn:{brief:'精簡',full:'完整版',enter:'進入網站',close:'關閉',sign:'簽到'},
         punch:{title:'打卡成功',tip:'您到訪的時間：'},
+        board:{
+          title:'留言板 / 簽到',
+          hint:'輸入名字後送出，會化身為一顆水果在頁面游動 🍑',
+          input:'你的名字'
+        },
         works:[
           {key:'inplace',title:'《空心 In Place》',tag:'攝影／書籍 × 水泥物件',cover:'images/inplace.png',
            brief:['摺頁小誌置入特製水泥磚；拉起摺頁時，磚體隨之層層「堆疊」。'],
@@ -184,48 +202,37 @@
         const el = cardRef.current;
         if(!el) return;
 
-        let startX=0,startY=0, baseX=0, baseY=0, dragging=false;
+        let startX=0,startY=0, dragging=false;
 
-        const getPos=(e)=> {
-          if (e.touches && e.touches[0]) return {x:e.touches[0].clientX,y:e.touches[0].clientY};
-          return {x:e.clientX,y:e.clientY};
-        };
+        const getPos=(e)=> e.touches?.[0] ? {x:e.touches[0].clientX,y:e.touches[0].clientY} : {x:e.clientX,y:e.clientY};
 
         const onStart=(e)=>{
           dragging=true;
           const p=getPos(e);
           startX=p.x; startY=p.y;
-          const rect=el.getBoundingClientRect();
-          baseX=rect.left + rect.width/2; baseY=rect.top + rect.height/2;
           el.style.transition='none';
         };
-
         const onMove=(e)=>{
           if(!dragging) return;
           e.preventDefault();
           const p=getPos(e);
-          const dx=p.x-startX, dy=p.y-startY;
+          const dx=(p.x-startX), dy=(p.y-startY);
           el.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+          el.style.zIndex = 20;
         };
-
         const overlap=(a,b)=> !(a.right<b.left || a.left>b.right || a.bottom<b.top || a.top>b.bottom);
-
         const onEnd=()=>{
           if(!dragging) return;
           dragging=false;
-          // 撞擊檢查
           const cardRect=el.getBoundingClientRect();
           const slotRect=slotRef.current.getBoundingClientRect();
           if (overlap(cardRect, slotRect)) {
-            // 成功：音效、震動、顯示時間章
             try { new Audio('punch.mp3').play().catch(()=>{}); } catch(e) {}
             if (navigator.vibrate) navigator.vibrate(25);
             stampRef.current.classList.add('show');
-            // 0.35s 後淡出並進站
             setTimeout(()=>{ setDone(true); }, 350);
             setTimeout(()=>{ onEnter(); }, 850);
           } else {
-            // 回彈原位
             el.style.transition='transform .25s ease';
             el.style.transform='translate(-50%, -50%)';
           }
@@ -252,20 +259,20 @@
         <div ref={wrapRef} className={`fixed inset-0 z-[60] bg-white/88 backdrop-blur-sm flex items-center justify-center p-6 ${done?'fade-out':''}`}>
           <div className="w-full max-w-3xl bg-white border-[4px] border-black rounded-2xl shadow-[10px_10px_0_#111] overflow-hidden">
             <div className="relative">
-              {/* 打卡機背景（你的照片） */}
+              {/* 打卡機背景 */}
               <img
                 src="punch.png"
                 alt="打卡機"
                 className="w-full max-h-[560px] object-contain bg-white"
                 onError={(e)=>{e.currentTarget.onerror=null;e.currentTarget.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420"><rect width="100%" height="100%" fill="#f6f6f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="20" fill="#999">請上傳 punch.png</text></svg>`);}}
               />
-
               {/* 卡槽（偏下） */}
-              <div ref={slotRef} className="punch-slot"></div>
+              <div ref={slotRef} className="punch-slot" style={{zIndex:15}}></div>
 
-              {/* 可拖曳卡片（可替換為 /images/punch-card.png） */}
+              {/* 可拖曳卡片（根目錄 punch-card.png） */}
               <div ref={cardRef} className="punch-card">
-                <img src="images/punch-card.png" alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e)=>{ e.currentTarget.style.display='none'; }} />
+                <img src="punch-card.png" alt="" className="absolute inset-0 w-full h-full object-cover"
+                     onError={(e)=>{ e.currentTarget.style.display='none'; }} />
                 <div className="absolute left-2 top-2 bg-[var(--yellow)] border-4 border-black rounded-lg shadow-[6px_6px_0_#111] px-2 py-1 label">GOOD FUN TEAM</div>
                 <div ref={stampRef} className="punch-stamp">{ts || '—:—:—'}</div>
               </div>
@@ -273,10 +280,104 @@
 
             <div className="p-3 flex items-center justify-end">
               <span className="text-xs opacity-60 mr-auto pl-2">把卡片拖到打卡槽以進入網站</span>
-              {/* 若想加「略過」按鈕，也可以在這裡加 */}
             </div>
           </div>
         </div>
+      );
+    };
+
+    /* 游動水果留言板（localStorage 保存） */
+    const FRUITS = ['🍎','🍌','🍊','🍇','🍉','🍍','🍓','🍑','🥝','🍐'];
+    const STORAGE_KEY = 'gft-guests-v1';
+
+    const FruitLayer = ({ items }) => {
+      const layerRef = useRef(null);
+      const animRef  = useRef(null);
+      const objsRef  = useRef([]);
+
+      useEffect(()=>{
+        const layer = layerRef.current;
+        if(!layer) return;
+
+        // 清空
+        layer.innerHTML = '';
+        objsRef.current = [];
+
+        // 產生 DOM + 初始狀態
+        items.forEach((it, idx)=>{
+          const el = document.createElement('div');
+          el.className = 'fruit-chip';
+          el.innerHTML = `<span class="fruit-emoji">${it.fruit}</span><span class="fruit-name">${it.name}</span>`;
+          layer.appendChild(el);
+
+          const vw = window.innerWidth, vh = window.innerHeight;
+          const x = (it.x ?? Math.random()*vw);
+          const y = (it.y ?? Math.random()*vh*0.8 + vh*0.1);
+          const vx = (it.vx ?? (Math.random()*0.6+0.2) * (Math.random()<0.5?-1:1));
+          const vy = (it.vy ?? (Math.random()*0.4+0.1) * (Math.random()<0.5?-1:1));
+          objsRef.current.push({el, x, y, vx, vy});
+        });
+
+        const tick = ()=>{
+          const vw = window.innerWidth, vh = window.innerHeight;
+          objsRef.current.forEach(o=>{
+            o.x += o.vx; o.y += o.vy;
+            // 邊界反彈
+            if (o.x < 40 || o.x > vw-40) o.vx *= -1;
+            if (o.y < 60 || o.y > vh-60) o.vy *= -1;
+            o.el.style.left = o.x + 'px';
+            o.el.style.top  = o.y + 'px';
+          });
+          animRef.current = requestAnimationFrame(tick);
+        };
+        tick();
+        return ()=> cancelAnimationFrame(animRef.current);
+      },[items]);
+
+      return <div ref={layerRef} className="float-layer"></div>;
+    };
+
+    const SignBoard = ({ t }) => {
+      const [name,setName] = useState('');
+      const [list,setList] = useState([]);
+
+      useEffect(()=>{
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(raw) setList(JSON.parse(raw));
+        }catch(e){}
+      },[]);
+      useEffect(()=>{
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
+      },[list]);
+
+      const add = ()=>{
+        const n = name.trim();
+        if(!n) return;
+        const fruit = FRUITS[Math.floor(Math.random()*FRUITS.length)];
+        setList(prev=>[...prev, {name:n, fruit}]);
+        setName('');
+      };
+
+      return (
+        <>
+          <FruitLayer items={list} />
+          <div className="card p-6 mt-10">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-2xl label">{t.board.title}</h3>
+              <Badge>BOARD</Badge>
+            </div>
+            <p className="text-sm opacity-80 mt-2">{t.board.hint}</p>
+            <div className="mt-4 flex gap-2">
+              <input value={name} onChange={e=>setName(e.target.value)} placeholder={t.board.input}
+                     className="flex-1 rounded-xl border-2 border-black px-3 py-2" />
+              <button onClick={add} className="btn px-4 py-2 rounded-xl bg-[var(--yellow)]">{t.btn.sign}</button>
+            </div>
+            {list.length>0 && (
+              <div className="mt-4 text-sm opacity-70">目前共 {list.length} 位來賓</div>
+            )}
+          </div>
+        </>
       );
     };
 
@@ -290,13 +391,13 @@
         <div className="min-h-screen relative z-10">
           <LangSwitcher current={lang} onChange={setLang} />
 
-          {/* IG（用你的 .PNG 檔名） */}
+          {/* IG（使用你已改成小寫的 .png 檔名） */}
           <div className="fixed right-4 top-4 z-40 flex flex-col gap-3">
             <a href="https://www.instagram.com/rotion87" target="_blank" className="block w-12 h-12 rounded-full border-[3px] border-black bg-white shadow-[6px_6px_0_#111] overflow-hidden" aria-label="IG rotion87">
-              <img src="ig-rotion.PNG" alt="IG rotion87" className="w-full h-full object-cover"/>
+              <img src="ig-rotion.png" alt="IG rotion87" className="w-full h-full object-cover"/>
             </a>
             <a href="https://www.instagram.com/l72uo_" target="_blank" className="block w-12 h-12 rounded-full border-[3px] border-black bg-white shadow-[6px_6px_0_#111] overflow-hidden" aria-label="IG l72uo_">
-              <img src="ig-l72uo.PNG" alt="IG l72uo_" className="w-full h-full object-cover"/>
+              <img src="ig-l72uo.png" alt="IG l72uo_" className="w-full h-full object-cover"/>
             </a>
           </div>
 
@@ -323,6 +424,9 @@
                 <div className="mt-3 space-y-2 text-sm leading-relaxed">{t.about.map((p,i)=>(<p key={i}>{p}</p>))}</div>
               </div>
             </section>
+
+            {/* 留言板／簽到 */}
+            <SignBoard t={t} />
           </div>
 
           <WorkModal open={!!open} onClose={()=>setOpen(null)} w={open} t={t} />
