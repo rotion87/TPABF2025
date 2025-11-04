@@ -42,7 +42,7 @@ body{
 <div id="root"></div>
 <script type="text/babel">
 const FRUITS=["🍎","🍊","🍋","🍉","🍇","🍓","🍑","🍐","🍌"];
-const API_URL="https://script.google.com/macros/s/AKfycbyqXdNd0VsgaDg3jNIMmL3A3dSYjnovi54AC-ze1buRO0mK7AMOLeo3JquQwpSSABU/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbyjS9jCYZ8fbtfdENPQW20iulMdQEE7cNuw5hrfafywId6zoCzgQgLmng1SrLJFxAc/exec";
 const LANGS={tw:"🇹🇼",en:"🇺🇸",ja:"🇯🇵",ko:"🇰🇷"};
 const I18N={
   tw:{title:"2025 孤芳小隊 GOOD FUN TEAM in 草率季",concept:"設計理念",about:"關於",board:"留言板／簽到",hint:"輸入名字後送出，會化身為一顆水果在畫面遊動",input:"你的名字",send:"簽到"},
@@ -167,7 +167,7 @@ function FruitLayer({items}){
 }
 
 /* 簽到留言板（GAS 連動 + 手機送出鍵換行） */
-function SignBoard({t}){
+function function SignBoard({t}){
   const [name,setName]=React.useState("");
   const [list,setList]=React.useState([]);
   const [posting,setPosting]=React.useState(false);
@@ -175,21 +175,43 @@ function SignBoard({t}){
 
   React.useEffect(()=>{
     fetch(API_URL).then(r=>r.json()).then(j=>{
-      if(j.ok&&Array.isArray(j.data)) setList(j.data);
-    }).catch(()=>setErr("無法載入留言板，稍後再試"));
+      if(j.ok && Array.isArray(j.data)) setList(j.data);
+      else setErr("讀取失敗（" + (j.error || 'unknown') + "）");
+    }).catch((e)=>setErr("讀取失敗（網路）"));
   },[]);
 
   const add=async()=>{
     const n=name.trim(); if(!n) return;
     const fruit=FRUITS[Math.floor(Math.random()*FRUITS.length)];
+    setErr(""); setPosting(true);
+
+    // 先用 POST
     try{
-      setPosting(true);
-      const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,fruit})});
+      const res=await fetch(API_URL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({name:n,fruit})
+      });
       const j=await res.json();
-      if(!j.ok) throw new Error(j.error||"post_failed");
-      setList(p=>[...p,{name:n,fruit}]); setName("");
-    }catch(e){ setErr("送出失敗，稍後再試"); }
-    finally{ setPosting(false); }
+      if(j.ok){
+        setList(p=>[...p,{name:n,fruit}]); setName(""); setPosting(false); return;
+      }
+      throw new Error(j.error || "post_failed");
+    }catch(_){
+      // 退路：用 GET 寫入（對應後端 doGet 也能 append）
+      try{
+        const url = API_URL + `?name=${encodeURIComponent(n)}&fruit=${encodeURIComponent(fruit)}`;
+        const res=await fetch(url,{method:"GET"});
+        const j=await res.json();
+        if(j.ok){
+          setList(p=>[...p,{name:n,fruit}]); setName(""); setPosting(false); return;
+        }
+        throw new Error(j.error || "get_write_failed");
+      }catch(e2){
+        setPosting(false);
+        setErr("送出失敗（" + (e2.message || '網路/權限') + "）");
+      }
+    }
   };
 
   return (
@@ -202,7 +224,7 @@ function SignBoard({t}){
           className="flex-1 rounded-xl border-2 border-black px-3 py-3"/>
         <button onClick={add} disabled={posting}
           className="btn w-full sm:w-auto px-4 py-3 rounded-xl bg-[var(--yellow)] border-2 border-black font-bold">
-          {posting?"送出中…":t.send}
+          {posting ? "送出中…" : t.send}
         </button>
       </div>
 
@@ -211,7 +233,6 @@ function SignBoard({t}){
     </div>
   );
 }
-
 function App(){
   const [lang,setLang]=React.useState("tw");
   const [entered,setEntered]=React.useState(false);
