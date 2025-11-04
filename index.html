@@ -1,441 +1,169 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>2025 孤芳小隊 GOOD FUN TEAM in 草率季</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    /* 讓內容底部自動留出語言切換鈕的高度（含 iPhone 安全區） */
-.safe-bottom { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); }
-/* 語言切換鈕固定在左下，但考慮安全區 */
-.lang-fab { bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); }
-@media (max-width: 640px){
-  .lang-fab { transform: scale(0.92); } /* 小螢幕稍微縮一點 */}
-    :root{ --red:#ff2b2b; --blue:#13a0ff; --yellow:#ffe200; --green:#00b050; --ink:#101010; --paper:#fffbe9; --cream:#fff5c2; --dot:#0a5bd6; }
-    html,body{height:100%}
-    body{font-family:'Noto Sans TC',system-ui,-apple-system,Segoe UI,Roboto,'PingFang TC','Microsoft JhengHei',sans-serif;color:var(--ink)}
-    .bg-fruit{
-      background:
-        radial-gradient(circle at -10% -10%, rgba(255,255,255,.35) 0 25%, transparent 26%),
-        radial-gradient(circle at 110% 110%, rgba(255,255,255,.35) 0 25%, transparent 26%),
-        repeating-radial-gradient(circle at 20% 10%, rgba(255,255,255,.65) 0 4px, transparent 5px 10px),
-        radial-gradient(ellipse at top, #fffaf0, var(--cream) 45%, #ffeec2 85%);
-    }
-    .dot-overlay{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(var(--dot) 2px,transparent 2px);background-size:26px 26px;opacity:.12;mix-blend-multiply}
-    .hero-title{font-family:'Bangers',system-ui;letter-spacing:1px;text-shadow:2px 2px 0 #00000020}
-    .burst{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:.35rem .6rem;font-weight:900;color:#111;text-shadow:1px 1px 0 #fff}
-    .burst:before{content:"";position:absolute;inset:-6px;z-index:-1;background:conic-gradient(from 0deg, var(--yellow) 0 25%, #ffd100 25% 50%, var(--yellow) 50% 75%, #ffd100 75% 100%);-webkit-mask:radial-gradient(circle,transparent 38%,#000 39%),conic-gradient(from 0deg,#000 0 100%);border-radius:50%}
-    .card{border:3px solid #111;box-shadow:6px 6px 0 #111;background:#fff;border-radius:18px;overflow:hidden}
-    .card img{width:100%;height:15rem;object-fit:cover;background:#e7e7e7}
-    .label{font-family:'Bangers';letter-spacing:.5px}
-    .btn{border:3px solid #111;background:#fff;box-shadow:4px 4px 0 #111;font-weight:700}
-    .btn:hover{transform:translate(-1px,-1px)}
-    .lang-pill{border:3px solid #111;background:var(--yellow);box-shadow:4px 4px 0 #111}
-    .modal{position:fixed;inset:0;z-index:50}
-    .modal-back{position:absolute;inset:0;background:rgba(16,16,16,.55)}
-    .modal-body{position:absolute;left:50%;transform:translateX(-50%);top:8vh;width:min(780px,92vw);background:#fff;border:4px solid #111;box-shadow:10px 10px 0 #111;border-radius:22px}
-    @keyframes ripple-anim{to{transform:scale(12);opacity:0}}
-
-    /* 打卡互動（拖曳入槽） */
-    @keyframes stamp-pop{0%{transform:scale(.7) rotate(-6deg);opacity:0}60%{transform:scale(1.1) rotate(0deg);opacity:1}100%{transform:scale(1);opacity:1}}
-    .punch-slot{position:absolute; left:50%; top:72%; transform:translate(-50%,-50%); width:min(64%,520px); height:16px; background:#111; border-radius:6px; box-shadow:0 3px 0 #0005; opacity:.9;}
-    .punch-card{
-      position:absolute; left:50%; top:58%; transform:translate(-50%,-50%);
-      width:min(58%,480px); max-width:90vw; aspect-ratio:3/2;
-      border-radius:12px; box-shadow:8px 10px 0 #111; border:4px solid #111; background:#fff; overflow:hidden;
-      touch-action:none; user-select:none; cursor:grab; height:clamp(140px, 28vw, 240px); z-index:19;
-    }
-    .punch-card:active{cursor:grabbing}
-    .punch-stamp{position:absolute; right:10px; bottom:10px; background:#fff; border:3px dashed #111; padding:.35rem .6rem; border-radius:8px; font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:800; letter-spacing:.5px; opacity:0;}
-    .punch-stamp.show{animation:stamp-pop 420ms ease-out both}
-    .fade-out{animation:fadeOut .5s ease forwards}
-    @keyframes fadeOut{to{opacity:0;visibility:hidden}}
-
-    /* 游動水果（留言板） */
-    .float-layer{position:fixed; inset:0; pointer-events:none; z-index:5;}
-    .fruit-chip{position:absolute; display:flex; align-items:center; gap:.35rem; background:rgba(255,255,255,.9); border:3px solid #111; border-radius:999px; padding:.2rem .6rem; box-shadow:4px 4px 0 #111; font-weight:800; white-space:nowrap; transform:translate(-50%,-50%);}
-    .fruit-emoji{font-size:1.2rem; line-height:1;}
-    .fruit-name{font-size:.82rem}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>2025 孤芳小隊 GOOD FUN TEAM in 草率季</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --yellow:#ffe200;--ink:#111;--cream:#fff7ce;
+}
+body{
+  font-family:'Noto Sans TC',sans-serif;background:var(--cream);
+  background-image:repeating-radial-gradient(circle at center,#fff 0 2px,transparent 3px 40px);
+  color:var(--ink);overflow-x:hidden;
+}
+.hero{font-family:'Bangers';color:#111;text-shadow:2px 2px 0 #fff;}
+.card{background:#fff;border:3px solid #000;border-radius:1.5rem;box-shadow:4px 4px 0 #000;}
+.lang-fab{position:fixed;left:1rem;bottom:calc(env(safe-area-inset-bottom,0px)+1rem);z-index:50;}
+.hide-lang .lang-fab{opacity:0;pointer-events:none;transform:translateY(150%);transition:.3s;}
+.fruit{position:absolute;font-size:2rem;animation:float 20s linear infinite;}
+@keyframes float{
+  0%{transform:translateY(0);}
+  100%{transform:translateY(-100vh);}
+}
+</style>
 </head>
-<body class="bg-fruit">
-  <div class="dot-overlay"></div>
-  <div id="app" class="relative z-10"></div>
+<body class="pb-32">
+<div id="root"></div>
 
-  <script>
-    /* 全站 ripple */
-    (function(){const s='button,a,img,[role="button"]';function e(t){const r=t.target.closest(s);if(!r)return;const n=r.tagName==='IMG'&&r.parentElement?r.parentElement:r,o=n.getBoundingClientRect(),a=(t.clientX||(o.left+o.width/2))-o.left,i=(t.clientY||(o.top+o.height/2))-o.top,l=Math.max(o.width,o.height),c=l*2,p=document.createElement('span');p.className='ripple-effect';p.style.cssText=`position:absolute;border-radius:9999px;transform:scale(0);opacity:.25;background:rgba(0,0,0,.18);pointer-events:none;left:${a-c/2}px;top:${i-c/2}px;width:${c}px;height:${c}px;animation:ripple-anim .6s ease-out forwards`;n.style.position='relative';n.style.overflow='hidden';n.appendChild(p);p.addEventListener('animationend',()=>p.remove(),{once:!0})}document.addEventListener('click',e,!0)})();
-  </script>
+<script type="text/babel">
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+const LANGS={tw:"🇹🇼",en:"🇺🇸",jp:"🇯🇵",kr:"🇰🇷"};
+const TEXT={
+  tw:{concept:"設計理念",about:"關於",board:"留言板／簽到",input:"你的名字",btn:"送出",desc:"輸入名字後送出，會化身為一顆水果在頁面遊動"},
+  en:{concept:"Concept",about:"About",board:"Board",input:"Your name",btn:"Send",desc:"Enter your name and you’ll appear as a floating fruit."},
+  jp:{concept:"コンセプト",about:"紹介",board:"掲示板",input:"名前を入力",btn:"送信",desc:"名前を入力すると、フルーツとしてページに現れます。"},
+  kr:{concept:"디자인 개념",about:"소개",board:"게시판",input:"이름 입력",btn:"보내기",desc:"이름을 입력하면 과일로 페이지에 나타납니다."}
+};
+const FRUITS=["🍎","🍊","🍋","🍉","🍇","🍓","🍑","🍐","🍌"];
 
-    /* === GAS API 設定 ===
-       步驟：把下面 API_URL 換成你部署後的 Web App URL（/exec）
-       若留空或不是 https，頁面會自動用 localStorage 先跑，之後再切換也OK */
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyqXdNd0VsgaDg3jNIMmL3A3dSYjnovi54AC-ze1buRO0mK7AMOLeo3JquQwpSSABU/exec';
-    const FRUITS = ['🍎','🍌','🍊','🍇','🍉','🍍','🍓','🍑','🥝','🍐'];
-    const STORAGE_KEY = 'gft-guests-v1';
+function LangSwitcher({lang,setLang}){
+  return (
+    <div className="lang-fab bg-white border-2 border-black rounded-full px-3 py-2 flex gap-2 shadow-md">
+      {Object.keys(LANGS).map(k=>(
+        <button key={k} onClick={()=>setLang(k)} className={lang===k?"text-2xl":"text-xl"}>{LANGS[k]}</button>
+      ))}
+    </div>
+  );
+}
 
-    const useCloud = () => /^https?:\/\//.test(API_URL);
+function PunchCard({onDone}){
+  const [dragging,setDragging]=React.useState(false);
+  const [dropped,setDropped]=React.useState(false);
+  const ref=React.useRef(null);
 
-    async function apiFetchGuests(){
-      if (!useCloud()){
-        // 本機模式
-        try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){ return []; }
-      }
-      // 雲端（GAS）
-      const res = await fetch(API_URL, { method:'GET' });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error||'fetch_failed');
-      return json.data || [];
-    }
-    async function apiAddGuest(name){
-      const fruit = FRUITS[Math.floor(Math.random()*FRUITS.length)];
-      if (!useCloud()){
-        // 本機模式
-        const list = await apiFetchGuests();
-        const next = [...list, {name, fruit}];
-        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); }catch(e){}
-        return {name, fruit};
-      }
-      // 雲端（GAS）
-      const res = await fetch(API_URL, {
-        method:'POST', headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ name, fruit })
-      });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error||'post_failed');
-      return { name, fruit };
-    }
+  const onDragStart=e=>{
+    setDragging(true);
+    e.dataTransfer.setData("text/plain","card");
+  };
+  const onDragEnd=()=>setDragging(false);
+  const onDrop=e=>{
+    e.preventDefault();
+    setDropped(true);
+    setTimeout(onDone,1500);
+  };
+  return (
+    <div className="flex flex-col items-center justify-center h-screen relative">
+      {!dropped && <>
+        <img src="punch.png" onDragOver={e=>e.preventDefault()} onDrop={onDrop} className="w-64 mb-8"/>
+        <img ref={ref} src="punch-card.png" draggable onDragStart={onDragStart} onDragEnd={onDragEnd} className={`w-40 cursor-grab ${dragging?"opacity-70":"opacity-100"}`}/>
+      </>}
+      {dropped && <div className="text-3xl font-bold mt-6">打卡成功！<br/>{new Date().toLocaleTimeString()}</div>}
+    </div>
+  );
+}
 
-    /* i18n（中文主） */
-    const i18n = {
-      zh: {
-        flag:'🇹🇼', langLabel:'繁中',
-        siteTitle:'2025 孤芳小隊 GOOD FUN TEAM in 草率季',
-        siteDesc:'水果店風格・作品與設計理念一頁式展覽',
-        nav:{works:'作品',concept:'設計理念',about:'關於',board:'留言板'},
-        btn:{brief:'精簡',full:'完整版',enter:'進入網站',close:'關閉',sign:'簽到'},
-        punch:{title:'打卡成功',tip:'您到訪的時間：'},
-        board:{ title:'留言板 / 簽到', hint:'輸入名字後送出，會化身為一顆水果在頁面游動 🍑', input:'你的名字' },
-        works:[
-          {key:'inplace',title:'《空心 In Place》',tag:'攝影／書籍 × 水泥物件',cover:'images/inplace.png',
-           brief:['摺頁小誌置入特製水泥磚；拉起摺頁時，磚體隨之層層「堆疊」。'],
-           full:['誕生於生活環境改變之後，是一場從日常延伸出的觀察與收集。為了布置新家，偶然看見以水泥空心磚堆疊的家具，從此留意街頭各式空心磚，並在拍攝與收集之間看見自己的投影。','摺頁小誌被置入特製水泥磚中；當觀者拉起摺頁，磚體會層層堆疊，象徵城市的堆砌與生活節奏的重組。In Place 不只是「在某處」，更是持續調整、尋找安放點的過程。']},
-          {key:'postbook',title:'《POSTBOOK – Taiwan / Japan》',tag:'貼紙簿',cover:'images/postbook.png',
-           brief:['以「護照」為靈感：台灣篇記錄城市物件；日本篇收錄東京標語與吉祥物。'],
-           full:['貼紙成為移動的語言——在不同城市留下遊走的痕跡。']},
-          {key:'handit',title:'《Hand-it 手心貼》',tag:'便利貼',cover:'images/handit.png',
-           brief:['怕忘記的事，寫在手心就好。'],
-           full:['把寫在手上的習慣，轉化成可以分享的便利貼，讓提醒不只留在手上，也能留在生活裡。']},
-          {key:'softdrinks',title:'《Soft Drinks》',tag:'絲巾 × 鋁罐包裝',cover:'images/softdrinks.png',
-           brief:['將絲巾收納於鋁罐中，作為「情緒罐裝」的象徵。'],
-           full:['柔軟的布料與堅硬容器對比，呈現被封存卻仍在流動的感受。']},
-          {key:'horsecard',title:'《孤芳小隊 馬年賀卡》',tag:'孔版印刷 × 原型公仔',cover:'images/horsecard.png',
-           brief:['搖搖馬 × 兩位角色（老鼠／雪貂） × 賽馬意象。'],
-           full:['手捏原型上色後拍攝，轉為孔版印刷明信片，現場亦展出原型公仔。']},
-          {key:'exhibit-horse',title:'展示物｜馬年公仔',tag:'手作／公仔',cover:'./exhibit-horse.png',
-           brief:['對應賀卡主題的立體原型，約 15 公分高。'],full:['展示手作質地與上色細節。']},
-          {key:'exhibit-pipo',title:'展示物｜PIPO君 張子',tag:'紙製張子',cover:'./exhibit-pipo.png',
-           brief:['以日本警察吉祥物為主題的張子紙偶。'],full:['保留手捏肌理與日光陰影，展現輕巧與份量感的平衡。']},
-          {key:'exhibit-radio',title:'展示物｜孤芳收音機',tag:'造型裝置',cover:'./exhibit-radio.png',
-           brief:['兩位角色結構融合的造型音響，天線成為視覺焦點。'],full:['成為攤位的聽覺與視覺標誌。']},
-        ],
-        concept:['關注城市中的暫居、移動與安放；以「柔軟 × 堅固」的媒材對位，談記憶與生活距離。'],
-        about:['孤芳小隊 GOOD FUN TEAM 由 Rotion87 與羅共同經營。','Rotion87：攝影／書籍／物件設計','羅（l72uo_）：造型／手作／角色設定']
-      },
-      en:{flag:'🇺🇸',langLabel:'EN'}, ja:{flag:'🇯🇵',langLabel:'日本語'}, ko:{flag:'🇰🇷',langLabel:'한국어'}
-    };
+function SignBoard({t}){
+  const [name,setName]=React.useState("");
+  const [data,setData]=React.useState([]);
+  const [posting,setPosting]=React.useState(false);
 
-    /* 左下角語言切換 */
-    const LangSwitcher = ({ current, onChange }) => (
-<div className="fixed left-4 lang-fab z-50 flex items-center gap-2 px-3 py-2 bg-white lang-pill rounded-full">        {Object.entries(i18n).map(([code, conf]) => (
-          <button key={code} onClick={()=>onChange(code)} title={conf.langLabel}
-            className={`text-xl leading-none px-2 py-1 rounded-full ${current===code?'bg-black text-white':'hover:bg-black/5'}`}>{conf.flag}</button>
+  const endpoint="https://script.google.com/macros/s/AKfycbyqXdNd0VsgaDg3jNIMmL3A3dSYjnovi54AC-ze1buRO0mK7AMOLeo3JquQwpSSABU/exec";
+
+  React.useEffect(()=>{
+    fetch(endpoint)
+      .then(r=>r.json())
+      .then(d=>setData(d.data||[]))
+      .catch(()=>{});
+  },[]);
+
+  const add=()=>{
+    if(!name.trim())return;
+    const fruit=FRUITS[Math.floor(Math.random()*FRUITS.length)];
+    setPosting(true);
+    fetch(endpoint+`?name=${encodeURIComponent(name)}&fruit=${encodeURIComponent(fruit)}`)
+      .then(r=>r.json())
+      .then(()=>{setData(p=>[...p,{name,fruit}]);setName("");})
+      .finally(()=>setPosting(false));
+  };
+
+  return (
+    <div className="card p-6 mt-10 mb-24">
+      <h2 className="text-2xl font-bold mb-2">{t.board}</h2>
+      <p className="mb-4">{t.desc}</p>
+      <div className="mt-4 flex flex-col sm:flex-row gap-2">
+        <input value={name} onChange={e=>setName(e.target.value)} placeholder={t.input}
+          className="flex-1 rounded-xl border-2 border-black px-3 py-3"/>
+        <button onClick={add} disabled={posting}
+          className="w-full sm:w-auto px-4 py-3 rounded-xl bg-[var(--yellow)] border-2 border-black font-bold">{posting?"送出中…":t.btn}</button>
+      </div>
+
+      <div className="relative h-48 overflow-hidden mt-6">
+        {data.map((f,i)=>(
+          <div key={i} className="fruit" style={{
+            left:Math.random()*90+"%",
+            animationDuration:10+Math.random()*10+"s"
+          }}>{f.fruit}</div>
         ))}
       </div>
-    );
+    </div>
+  );
+}
 
-    const Badge = ({ children }) => (<span className="burst label">{children}</span>);
-
-    const WorkCard = ({ w, onOpen }) => (
-      <div className="card">
-        <button className="block w-full" onClick={()=>onOpen(w)} aria-label={`Open ${w.title}`}>
-          <img src={w.cover} alt={w.title}
-            onError={(e)=>{e.currentTarget.onerror=null;e.currentTarget.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'><rect width='100%' height='100%' fill='%23f2f2f2'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='28' fill='%23999'>${w.cover} 尚未上傳</text></svg>`);}}/>
-        </button>
-        <div className="p-5">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="text-xl font-extrabold label">{w.title}</h3>
-            {w.tag && <Badge>{w.tag}</Badge>}
-          </div>
-          <p className="text-sm mt-2">{w.brief?.[0]}</p>
-          <div className="mt-3 text-xs opacity-60">點圖片看完整介紹</div>
+function App(){
+  const [lang,setLang]=React.useState("tw");
+  const [entered,setEntered]=React.useState(false);
+  const t=TEXT[lang];
+  React.useEffect(()=>{
+    const onFocusIn=e=>{
+      if(["INPUT","TEXTAREA"].includes(e.target.tagName))document.body.classList.add("hide-lang");
+    };
+    const onFocusOut=()=>document.body.classList.remove("hide-lang");
+    window.addEventListener("focusin",onFocusIn);
+    window.addEventListener("focusout",onFocusOut);
+    return()=>{window.removeEventListener("focusin",onFocusIn);window.removeEventListener("focusout",onFocusOut);}
+  },[]);
+  if(!entered)return <PunchCard onDone={()=>setEntered(true)}/>;
+  return (
+    <div className="p-4 pb-32 relative">
+      <LangSwitcher lang={lang} setLang={setLang}/>
+      <h1 className="text-center text-4xl hero mb-6">2025 孤芳小隊 GOOD FUN TEAM in 草率季</h1>
+      <div className="card p-6">
+        <h2 className="text-2xl font-bold mb-2">{t.concept}</h2>
+        <p>關注城市中的暫居、移動與安放；以「柔軟 × 堅固」的媒材對位，談記憶與生活距離。</p>
+      </div>
+      <div className="card p-6 mt-8">
+        <h2 className="text-2xl font-bold mb-2">{t.about}</h2>
+        <p>孤芳小隊 GOOD FUN TEAM 由 Rotion87 與 羅 共同經營。</p>
+        <p className="mt-2">Rotion87：攝影／書籍／物件設計</p>
+        <p>羅（l72uo_）：造型／手作／角色設定</p>
+        <div className="flex gap-3 mt-4">
+          <a href="https://www.instagram.com/rotion87" target="_blank"><img src="ig-rotion.png" className="w-10"/></a>
+          <a href="https://www.instagram.com/l72uo_" target="_blank"><img src="ig-l72uo.png" className="w-10"/></a>
         </div>
       </div>
-    );
+      <SignBoard t={t}/>
+    </div>
+  );
+}
 
-    const WorkModal = ({ open, onClose, w, t }) => {
-      const [tab,setTab]=React.useState('brief');
-      React.useEffect(()=>{setTab('brief')},[w]);
-      if(!open||!w) return null;
-      return (
-        <div className="modal">
-          <div className="modal-back" onClick={onClose}></div>
-          <div className="modal-body">
-            <div className="p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-2xl label">{w.title}</h3>
-                  <div className="mt-2 flex items-center gap-2">
-                    <button className={`btn px-3 py-1 rounded-full ${tab==='brief'?'bg-yellow-300':''}`} onClick={()=>setTab('brief')}>{t.btn.brief}</button>
-                    <button className={`btn px-3 py-1 rounded-full ${tab==='full'?'bg-yellow-300':''}`} onClick={()=>setTab('full')}>{t.btn.full}</button>
-                    {w.tag && <Badge>{w.tag}</Badge>}
-                  </div>
-                </div>
-                <button className="btn px-3 py-1 rounded-full bg-white" onClick={onClose}>{t.btn.close}</button>
-              </div>
-              <div className="mt-4 space-y-2 text-sm leading-relaxed">{(tab==='brief'?w.brief:w.full)?.map((p,i)=>(<p key={i}>{p}</p>))}</div>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    /* 互動式打卡：拖曳卡片進卡槽 → 音效 + 顯示時間 → 淡出 */
-    const PunchOverlay = ({ t, onEnter }) => {
-      const wrapRef = useRef(null);
-      const cardRef = useRef(null);
-      const slotRef = useRef(null);
-      const stampRef = useRef(null);
-      const [ts,setTs]=useState('');
-      const [done,setDone]=useState(false);
-
-      useEffect(()=>{
-        const fmt=(n)=>n.toString().padStart(2,'0');
-        const now=new Date();
-        setTs(`${now.getFullYear()}-${fmt(now.getMonth()+1)}-${fmt(now.getDate())} ${fmt(now.getHours())}:${fmt(now.getMinutes())}:${fmt(now.getSeconds())}`);
-      },[]);
-
-      useEffect(()=>{
-        const el = cardRef.current;
-        if(!el) return;
-
-        let startX=0,startY=0, dragging=false;
-
-        const getPos=(e)=> e.touches?.[0] ? {x:e.touches[0].clientX,y:e.touches[0].clientY} : {x:e.clientX,y:e.clientY};
-
-        const onStart=(e)=>{ dragging=true; const p=getPos(e); startX=p.x; startY=p.y; el.style.transition='none'; };
-        const onMove=(e)=>{
-          if(!dragging) return;
-          e.preventDefault();
-          const p=getPos(e);
-          const dx=(p.x-startX), dy=(p.y-startY);
-          el.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-          el.style.zIndex = 20;
-        };
-        const overlap=(a,b)=> !(a.right<b.left || a.left>b.right || a.bottom<b.top || a.top>b.bottom);
-        const onEnd=()=>{
-          if(!dragging) return;
-          dragging=false;
-          const cardRect=el.getBoundingClientRect();
-          const slotRect=slotRef.current.getBoundingClientRect();
-          if (overlap(cardRect, slotRect)) {
-            try { new Audio('punch.mp3').play().catch(()=>{}); } catch(e) {}
-            if (navigator.vibrate) navigator.vibrate(25);
-            stampRef.current.classList.add('show');
-            setTimeout(()=>{ setDone(true); }, 350);
-            setTimeout(()=>{ onEnter(); }, 850);
-          } else {
-            el.style.transition='transform .25s ease';
-            el.style.transform='translate(-50%, -50%)';
-          }
-        };
-
-        el.addEventListener('mousedown', onStart);
-        window.addEventListener('mousemove', onMove, {passive:false});
-        window.addEventListener('mouseup', onEnd);
-        el.addEventListener('touchstart', onStart, {passive:true});
-        window.addEventListener('touchmove', onMove, {passive:false});
-        window.addEventListener('touchend', onEnd);
-
-        return ()=>{
-          el.removeEventListener('mousedown', onStart);
-          window.removeEventListener('mousemove', onMove);
-          window.removeEventListener('mouseup', onEnd);
-          el.removeEventListener('touchstart', onStart);
-          window.removeEventListener('touchmove', onMove);
-          window.removeEventListener('touchend', onEnd);
-        };
-      },[onEnter]);
-
-      return (
-        <div ref={wrapRef} className={`fixed inset-0 z-[60] bg-white/88 backdrop-blur-sm flex items-center justify-center p-6 ${done?'fade-out':''}`}>
-          <div className="w-full max-w-3xl bg-white border-[4px] border-black rounded-2xl shadow-[10px_10px_0_#111] overflow-hidden">
-            <div className="relative">
-              <img src="punch.png" alt="打卡機" className="w-full max-h-[560px] object-contain bg-white" />
-              <div ref={slotRef} className="punch-slot" style={{zIndex:15}}></div>
-              <div ref={cardRef} className="punch-card">
-                <img src="punch-card.png" alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e)=>{ e.currentTarget.style.display='none'; }} />
-                <div className="absolute left-2 top-2 bg-[var(--yellow)] border-4 border-black rounded-lg shadow-[6px_6px_0_#111] px-2 py-1 label">GOOD FUN TEAM</div>
-                <div ref={stampRef} className="punch-stamp">{ts || '—:—:—'}</div>
-              </div>
-            </div>
-            <div className="p-3 flex items-center justify-end">
-              <span className="text-xs opacity-60 mr-auto pl-2">把卡片拖到打卡槽以進入網站</span>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    /* 游動水果圖層 */
-    const FruitLayer = ({ items }) => {
-      const layerRef = useRef(null);
-      const animRef  = useRef(null);
-      const objsRef  = useRef([]);
-
-      useEffect(()=>{
-        const layer = layerRef.current; if(!layer) return;
-        layer.innerHTML = ''; objsRef.current = [];
-        items.forEach((it)=>{
-          const el = document.createElement('div');
-          el.className = 'fruit-chip';
-          el.innerHTML = `<span class="fruit-emoji">${it.fruit}</span><span class="fruit-name">${it.name}</span>`;
-          layer.appendChild(el);
-          const vw = window.innerWidth, vh = window.innerHeight;
-          const x = Math.random()*vw, y = Math.random()*vh*0.8 + vh*0.1;
-          const vx = (Math.random()*0.6+0.2) * (Math.random()<0.5?-1:1);
-          const vy = (Math.random()*0.4+0.1) * (Math.random()<0.5?-1:1);
-          objsRef.current.push({el, x, y, vx, vy});
-        });
-        const tick = ()=>{
-          const vw = window.innerWidth, vh = window.innerHeight;
-          objsRef.current.forEach(o=>{
-            o.x += o.vx; o.y += o.vy;
-            if (o.x < 40 || o.x > vw-40) o.vx *= -1;
-            if (o.y < 60 || o.y > vh-60) o.vy *= -1;
-            o.el.style.left = o.x + 'px';
-            o.el.style.top  = o.y + 'px';
-          });
-          animRef.current = requestAnimationFrame(tick);
-        };
-        tick();
-        return ()=> cancelAnimationFrame(animRef.current);
-      },[items]);
-
-      return <div ref={layerRef} className="float-layer"></div>;
-    };
-
-    /* 簽到留言板（自動判斷：GAS 或 localStorage） */
-    const SignBoard = ({ t }) => {
-      const [name,setName] = useState('');
-      const [list,setList] = useState([]);
-      const [loading,setLoading] = useState(true);
-      const [posting,setPosting] = useState(false);
-      const [err,setErr] = useState('');
-
-      useEffect(()=>{
-        (async ()=>{
-          try{
-            setLoading(true);
-            const data = await apiFetchGuests();
-            setList(data);
-          }catch(e){ setErr('無法載入留言板，稍後再試'); }
-          finally{ setLoading(false); }
-        })();
-      },[]);
-
-      const add = async ()=>{
-        const n = name.trim(); if(!n) return;
-        try{
-          setPosting(true);
-          const obj = await apiAddGuest(n);
-          setList(prev=>[...prev, obj]);
-          setName('');
-        }catch(e){ setErr('送出失敗，稍後再試'); }
-        finally{ setPosting(false); }
-      };
-
-      return (
-        <>
-          <FruitLayer items={list} />
-          <div className="card p-6 mt-10 mb-24">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-2xl label">{t.board.title}</h3><Badge>BOARD</Badge>
-            </div>
-            <p className="text-sm opacity-80 mt-2">{t.board.hint}（目前模式：{useCloud()?'雲端':'本機'}）</p>
-            <div className="mt-4 flex gap-2">
-              <input value={name} onChange={e=>setName(e.target.value)} placeholder={t.board.input} className="flex-1 rounded-xl border-2 border-black px-3 py-2" />
-              <button onClick={add} disabled={posting} className="btn px-4 py-2 rounded-xl bg-[var(--yellow)]">{posting ? '送出中…' : t.btn.sign}</button>
-            </div>
-            {loading && <div className="mt-3 text-sm opacity-70">載入中…</div>}
-            {err && <div className="mt-3 text-sm text-red-600">{err}</div>}
-            {!loading && list.length>0 && (<div className="mt-4 text-sm opacity-70">目前共 {list.length} 位來賓</div>)}
-          </div>
-        </>
-      );
-    };
-
-    function App(){
-      const [lang,setLang]=useState('zh');
-      const t=i18n[lang]||i18n.zh;
-      const [open,setOpen]=useState(null);
-      const [showPunch,setShowPunch]=useState(true);
-
-      return (
-        <div className="min-h-screen relative z-10 safe-bottom">
-          <LangSwitcher current={lang} onChange={setLang} />
-          <div className="fixed right-4 top-4 z-40 flex flex-col gap-3">
-            <a href="https://www.instagram.com/rotion87" target="_blank" className="block w-12 h-12 rounded-full border-[3px] border-black bg-white shadow-[6px_6px_0_#111] overflow-hidden" aria-label="IG rotion87">
-              <img src="ig-rotion.png" alt="IG rotion87" className="w-full h-full object-cover"/>
-            </a>
-            <a href="https://www.instagram.com/l72uo_" target="_blank" className="block w-12 h-12 rounded-full border-[3px] border-black bg-white shadow-[6px_6px_0_#111] overflow-hidden" aria-label="IG l72uo_">
-              <img src="ig-l72uo.png" alt="IG l72uo_" className="w-full h-full object-cover"/>
-            </a>
-          </div>
-
-          <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
-            <header className="mb-6">
-              <h1 className="hero-title text-4xl md:text-5xl text-[var(--red)] drop-shadow" style={{ WebkitTextStroke: '2px #111' }}>{t.siteTitle}</h1>
-              <div className="mt-2 inline-flex items-center gap-2">
-                <Badge>QUALITY</Badge><Badge>FRESH</Badge><Badge>GOOD FUN</Badge>
-              </div>
-              <p className="text-sm opacity-80 mt-2">{t.siteDesc}</p>
-            </header>
-
-            <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {t.works.map((w)=>(<WorkCard key={w.key} w={w} onOpen={setOpen} />))}
-            </section>
-
-            <section className="mt-10 grid md:grid-cols-2 gap-6">
-              <div className="card p-6">
-                <div className="flex items-center justify-between gap-3"><h3 className="text-2xl label">設計理念</h3><Badge>CONCEPT</Badge></div>
-                <div className="mt-3 space-y-2 text-sm leading-relaxed">{t.concept.map((p,i)=>(<p key={i}>{p}</p>))}</div>
-              </div>
-              <div className="card p-6">
-                <div className="flex items-center justify-between gap-3"><h3 className="text-2xl label">關於</h3><Badge>ABOUT</Badge></div>
-                <div className="mt-3 space-y-2 text-sm leading-relaxed">{t.about.map((p,i)=>(<p key={i}>{p}</p>))}</div>
-              </div>
-            </section>
-
-            {/* 離線/雲端 簽到留言板 */}
-            <SignBoard t={t} />
-          </div>
-
-          <WorkModal open={!!open} onClose={()=>setOpen(null)} w={open} t={t} />
-          {showPunch && <PunchOverlay t={t} onEnter={()=>setShowPunch(false)} />}
-        </div>
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById('app')).render(<App />);
-  </script>
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
