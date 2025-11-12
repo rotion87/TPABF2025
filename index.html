@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>GOOD FUN TEAM｜作品一覽</title>
+<title> 孤芳小隊 GOOD FUN TEAM </title>
 <meta name="color-scheme" content="light only" />
 <style>
 :root{
@@ -56,25 +56,32 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
 .about h3{margin:6px 0 10px;font-size:18px}
 .about p{margin:0 0 10px;line-height:1.7}
 
-/* 作品牆 */
+/* 作品牆：兩欄 */
 .grid{display:grid;gap:22px;grid-template-columns:repeat(1,1fr)}
 @media(min-width:620px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:1024px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.grid{grid-template-columns:repeat(2,1fr)}}
+
 .card{position:relative;cursor:pointer;aspect-ratio:4/3;}
 .star{position:absolute;inset:0;margin:auto;width:88%;object-fit:contain;
   filter:drop-shadow(4px 4px 0 #000);transition:transform .2s;}
-.photo{position:absolute;inset:0;margin:auto;width:70%;height:70%;object-fit:contain;
+.photo{position:absolute;inset:0;margin:auto;width:min(72%,540px);height:min(72%,540px);object-fit:contain;
   filter:drop-shadow(0 12px 18px rgba(0,0,0,.28));transition:transform .2s;}
+/* 作品名 — 白字＋紅描邊＋黑陰影（可讀性強） */
 .name{
-  position:absolute;left:50%;bottom:6%;transform:translateX(-50%);
-  font-weight:900;font-size:14px;color:#fff;white-space:nowrap;
-  -webkit-text-stroke:2px #c90000;
-  text-shadow:2px 2px 0 #c90000,-2px 2px 0 #c90000;
+  position:absolute;left:50%;bottom:8%;transform:translateX(-50%);
+  font-weight:900;font-size:15px;white-space:nowrap;color:#fff;
+  text-shadow:
+    -2px -2px 0 #c90000, 2px -2px 0 #c90000,
+    -2px  2px 0 #c90000, 2px  2px 0 #c90000,
+     0px  3px 4px rgba(0,0,0,.55);
+  letter-spacing:.5px;
 }
+@media(min-width:768px){ .name{font-size:18px;bottom:9%} }
+
 .card:hover .photo{transform:scale(1.02)}
 .card:hover .star{transform:scale(1.01)}
 
-/* IG 圖示 */
+/* IG 圖示（右上角固定） */
 .ig-icons{
   position:fixed;top:16px;right:20px;z-index:200;
   display:flex;flex-direction:column;gap:10px;
@@ -88,7 +95,7 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
 .ig-icons img:hover{transform:scale(1.1) rotate(-3deg);box-shadow:3px 3px 0 #000;}
 @media(max-width:600px){.ig-icons img{width:36px;height:36px}}
 
-/* 語言切換 */
+/* 語言切換（右下角固定） */
 .lang-fab{
   position:fixed;right:14px;bottom:14px;z-index:150;
   display:flex;flex-direction:column;gap:6px;
@@ -180,6 +187,7 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
 </div>
 
 <script>
+/* 你的九件作品資料（可直接改字） */
 const WORKS=[
 {id:'horsecard',cover:'work-horsecard.png',basket:'basket_red.png',title:{zh:'孤芳小隊 2026 馬年賀卡'},meta:{zh:'明信片／孔版印刷'},desc:{zh:'以馬年為主題，黏土手作、上色、分色孔版印刷。角色坐在搖搖馬上，象徵放慢腳步也沒關係。'}},
 {id:'hollow',cover:'work-hollow.png',basket:'basket_blue.png',title:{zh:'空心 IN PLACE'},meta:{zh:'攝影折頁小誌 × 水泥物件'},desc:{zh:'記錄城市裡被安放的空心磚。手工灌製水泥磚作為書衣，折頁象徵堆疊意象。'}},
@@ -194,6 +202,7 @@ const WORKS=[
 
 let LANG='zh',currentId=null;
 const grid=document.getElementById('workGrid');
+
 function renderGrid(){
   grid.innerHTML=WORKS.map(w=>`
   <article class="card" data-id="${w.id}">
@@ -204,6 +213,7 @@ function renderGrid(){
 }
 renderGrid();
 
+/* 彈窗互動 */
 const modal=document.getElementById('modal');
 const mdTitle=document.getElementById('mdTitle');
 const mdMeta=document.getElementById('mdMeta');
