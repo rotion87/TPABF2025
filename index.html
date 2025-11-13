@@ -22,173 +22,350 @@ body{
   background-size:100% auto;
 }
 
-/* 左側打卡滑道（scroll indicator） */
-.punch-rail{
-  position:fixed;
-  left:10px;
-  top:70px;
-  bottom:70px;
-  width:90px;
-  z-index:40;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  pointer-events:none; /* 不擋到頁面操作 */
-}
-.punch-track{
+/* 頂部 Banner */
+header{
   position:relative;
-  width:60px;
-  height:100%;
-  border-radius:20px;
-  border:3px solid #000;
-  background:linear-gradient(#b4ffd2,#eafff0);
-  box-shadow:0 4px 0 #000;
-  overflow:hidden;
+  z-index:2;
+  padding:18px 16px 8px;
 }
-#punchCard{
-  position:absolute;
-  width:72px;
-  left:50%;
-  transform:translate(-50%,0); /* 預設在最上方，會被 JS 覆蓋 */
-  filter:drop-shadow(2px 4px 4px rgba(0,0,0,.3));
-}
-#punchMachine{
-  position:absolute;
-  width:80px;
-  left:50%;
-  bottom:-4px;
-  transform:translateX(-50%);
-}
-
-/* 頂部標題 */
-header{position:relative;z-index:2;padding:18px 16px 8px;}
 .bar{
-  background:var(--red);border:3px solid #000;border-radius:20px;
-  padding:20px 22px;max-width:1200px;margin:0 auto;
-  box-shadow:var(--shadow-big);
+  max-width:1200px;
+  margin:0 auto;
+  /* 不再用紅底，改由圖片決定視覺 */
+  background:transparent;
+  border:none;
+  border-radius:0;
+  padding:0;
+  box-shadow:none;
 }
 .logo{
-  margin-left:64px;line-height:1;font-weight:900;color:#ffd76c;font-size:40px;
-  text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;
+  margin:0 auto;
+  max-width:100%;
 }
-@media(min-width:960px){.logo{font-size:54px}}
+.logo-img{
+  display:block;
+  width:100%;
+  height:auto;
+}
 
 /* 主內容 */
-.wrap{max-width:1200px;margin:16px auto 120px;padding:0 12px;position:relative;z-index:2;}
-.main{display:grid;gap:20px;grid-template-columns:1fr;}
-@media(min-width:1024px){.main{grid-template-columns:1.4fr .6fr}}
+.wrap{
+  max-width:1200px;
+  margin:16px auto 120px;
+  padding:0 12px;
+  position:relative;
+  z-index:2;
+}
+.main{
+  display:grid;
+  gap:20px;
+  grid-template-columns:1fr;
+}
+@media(min-width:1024px){
+  .main{grid-template-columns:1.4fr .6fr}
+}
 
 /* 右側介紹 */
 .about{
   background:rgba(255,247,202,.97);
-  border:3px solid #000;border-radius:18px;padding:16px 18px;
+  border:3px solid #000;
+  border-radius:18px;
+  padding:16px 18px;
   box-shadow:var(--shadow-med);
 }
 .about h3{margin:6px 0 10px;font-size:18px}
 .about p{margin:0 0 10px;line-height:1.7}
 
 /* 作品牆：兩欄 */
-.grid{display:grid;gap:22px;grid-template-columns:repeat(1,1fr)}
-@media(min-width:620px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:1024px){.grid{grid-template-columns:repeat(2,1fr)}}
+.grid{
+  display:grid;
+  gap:22px;
+  grid-template-columns:repeat(1,1fr);
+}
+@media(min-width:620px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:1024px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+}
 
-.card{position:relative;cursor:pointer;aspect-ratio:4/3;}
-.star{position:absolute;inset:0;margin:auto;width:88%;object-fit:contain;
-  filter:drop-shadow(4px 4px 0 #000);transition:transform .2s;}
-.photo{position:absolute;inset:0;margin:auto;width:min(72%,540px);height:min(72%,540px);object-fit:contain;
-  filter:drop-shadow(0 12px 18px rgba(0,0,0,.28));transition:transform .2s;}
+.card{
+  position:relative;
+  cursor:pointer;
+  aspect-ratio:4/3;
+}
+.star{
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:88%;
+  object-fit:contain;
+  filter:drop-shadow(4px 4px 0 #000);
+  transition:transform .2s;
+}
+.photo{
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:min(72%,540px);
+  height:min(72%,540px);
+  object-fit:contain;
+  filter:drop-shadow(0 12px 18px rgba(0,0,0,.28));
+  transition:transform .2s;
+}
 /* 作品名 — 白字＋紅描邊＋黑陰影 */
 .name{
-  position:absolute;left:50%;bottom:8%;transform:translateX(-50%);
-  font-weight:900;font-size:15px;white-space:nowrap;color:#fff;
+  position:absolute;
+  left:50%;
+  bottom:8%;
+  transform:translateX(-50%);
+  font-weight:900;
+  font-size:15px;
+  white-space:nowrap;
+  color:#fff;
   text-shadow:
     -2px -2px 0 #c90000, 2px -2px 0 #c90000,
     -2px  2px 0 #c90000, 2px  2px 0 #c90000,
      0px  3px 4px rgba(0,0,0,.55);
   letter-spacing:.5px;
 }
-@media(min-width:768px){ .name{font-size:18px;bottom:9%} }
-
+@media(min-width:768px){
+  .name{font-size:18px;bottom:9%}
+}
 .card:hover .photo{transform:scale(1.02)}
 .card:hover .star{transform:scale(1.01)}
 
 /* IG 圖示（右上角固定） */
 .ig-icons{
-  position:fixed;top:16px;right:20px;z-index:200;
-  display:flex;flex-direction:column;gap:10px;
+  position:fixed;
+  top:16px;
+  right:20px;
+  z-index:200;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 .ig-icons img{
-  width:44px;height:44px;display:block;
-  border:2px solid #000;border-radius:10px;background:#fff;
+  width:44px;
+  height:44px;
+  display:block;
+  border:2px solid #000;
+  border-radius:10px;
+  background:#fff;
   box-shadow:2px 2px 0 #000;
   transition:transform .25s,box-shadow .25s;
 }
-.ig-icons img:hover{transform:scale(1.1) rotate(-3deg);box-shadow:3px 3px 0 #000;}
-@media(max-width:600px){.ig-icons img{width:36px;height:36px}}
+.ig-icons img:hover{
+  transform:scale(1.1) rotate(-3deg);
+  box-shadow:3px 3px 0 #000;
+}
+@media(max-width:600px){
+  .ig-icons img{width:36px;height:36px}
+}
 
 /* 語言切換（右下角固定） */
 .lang-fab{
-  position:fixed;right:14px;bottom:14px;z-index:150;
-  display:flex;flex-direction:column;gap:6px;
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:150;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
 .lang-btn{
-  width:44px;height:44px;border-radius:12px;background:#fff;
-  border:2px solid #000;display:flex;align-items:center;justify-content:center;
-  font-size:22px;cursor:pointer;box-shadow:2px 2px 0 #000;
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  background:#fff;
+  border:2px solid #000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  cursor:pointer;
+  box-shadow:2px 2px 0 #000;
 }
-.lang-btn.active{outline:3px solid var(--orange)}
+.lang-btn.active{
+  outline:3px solid var(--orange);
+}
 
 /* 作品彈窗 */
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:90;}
-.modal.show{display:flex}
-.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5)}
-.panel{position:relative;z-index:1;background:#fff;max-width:min(1100px,92vw);
-  border:3px solid #000;border-radius:24px;box-shadow:var(--shadow-big);overflow:hidden;}
-.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;
-  padding:14px 18px;border-bottom:3px solid #000;background:#fffce7;}
-.panel-title{font-weight:900;font-size:18px}
-.close{border:2px solid #000;border-radius:10px;background:#ffef6a;
-  padding:6px 10px;font-weight:900;cursor:pointer;box-shadow:2px 2px 0 #000;}
-.panel-body{display:grid;gap:18px;padding:18px;grid-template-columns:1.1fr .9fr;}
-@media(max-width:860px){.panel-body{grid-template-columns:1fr;padding:14px}}
-.basket-bg{width:100%;display:block;border-radius:16px;box-shadow:var(--shadow-med);}
-.work-photo{position:absolute;inset:0;margin:auto;max-width:min(85%,720px);
-  max-height:80%;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(0,0,0,.25));}
-.meta{color:#666;font-size:14px;margin:.2rem 0 1rem}
-.desc{white-space:pre-wrap;line-height:1.7}
-
-/* 打卡完成彈出視窗 */
-.punch-overlay{
+.modal{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.55);
   display:none;
   align-items:center;
   justify-content:center;
-  z-index:250;
+  z-index:90;
 }
-.punch-overlay.show{display:flex}
-.punch-dialog{
-  background:#fffce7;
-  border-radius:20px;
+.modal.show{display:flex}
+.backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.5);
+}
+.panel{
+  position:relative;
+  z-index:1;
+  background:#fff;
+  max-width:min(1100px,92vw);
   border:3px solid #000;
-  padding:18px 24px;
-  max-width:280px;
-  text-align:center;
+  border-radius:24px;
   box-shadow:var(--shadow-big);
+  overflow:hidden;
 }
-.punch-dialog h2{
-  margin-bottom:8px;
-  font-size:20px;
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:14px 18px;
+  border-bottom:3px solid #000;
+  background:#fffce7;
 }
-.punch-dialog p{
-  margin:4px 0;
-  font-size:14px;
+.panel-title{
+  font-weight:900;
+  font-size:18px;
 }
-.punch-dialog small{
+.close{
+  border:2px solid #000;
+  border-radius:10px;
+  background:#ffef6a;
+  padding:6px 10px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:2px 2px 0 #000;
+}
+.panel-body{
+  display:grid;
+  gap:18px;
+  padding:18px;
+  grid-template-columns:1.1fr .9fr;
+}
+@media(max-width:860px){
+  .panel-body{
+    grid-template-columns:1fr;
+    padding:14px;
+  }
+}
+.basket-bg{
+  width:100%;
   display:block;
-  margin-top:10px;
+  border-radius:16px;
+  box-shadow:var(--shadow-med);
+}
+.work-photo{
+  position:absolute;
+  inset:0;
+  margin:auto;
+  max-width:min(85%,720px);
+  max-height:80%;
+  object-fit:contain;
+  filter:drop-shadow(0 12px 20px rgba(0,0,0,.25));
+}
+.meta{
   color:#666;
+  font-size:14px;
+  margin:.2rem 0 1rem;
+}
+.desc{
+  white-space:pre-wrap;
+  line-height:1.7;
+}
+
+/* === 隱形打卡滑軌 === */
+.punch-track{
+  position:fixed;
+  left:22px;
+  top:0;
+  height:100vh;
+  width:0;
+  pointer-events:none;
+  z-index:50;
+}
+
+/* 打卡紙 */
+.punch-card{
+  position:absolute;
+  left:-50px; /* 依實際圖寬微調，使紙中心在 x≈22px */
+  width:100px;
+  transform:translateY(80px);
+  transition:transform .25s ease-out;
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.25));
+}
+
+/* 打卡機：左下角 */
+.punch-machine{
+  position:fixed;
+  left:10px;
+  bottom:10px;
+  width:130px;
+  opacity:0;
+  transform:translateY(15px);
+  transition:opacity .4s ease-out,transform .4s ease-out;
+  pointer-events:none;
+  filter:drop-shadow(0 4px 4px rgba(0,0,0,.3));
+}
+.punch-machine.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* 抖動動畫 */
+@keyframes punch-shake{
+  0%{transform:translate(0,0)}
+  20%{transform:translate(-2px,0)}
+  40%{transform:translate(2px,0)}
+  60%{transform:translate(-1px,0)}
+  80%{transform:translate(1px,0)}
+  100%{transform:translate(0,0)}
+}
+.punch-machine.shake{
+  animation:punch-shake .4s ease-out;
+}
+
+/* 打卡完成彈窗 */
+#punch-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease-out;
+  z-index:200;
+}
+#punch-overlay.show{
+  opacity:1;
+  pointer-events:auto;
+}
+.punch-popup{
+  background:#fffce6;
+  border-radius:18px;
+  padding:24px 28px;
+  text-align:center;
+  box-shadow:0 8px 16px rgba(0,0,0,.3);
+  border:3px solid #ff5050;
+  max-width:280px;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans TC";
+}
+.punch-title{
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:.14em;
+  margin-bottom:10px;
+}
+#punch-time{
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:8px;
+}
+.punch-hint{
+  font-size:12px;
+  color:#555;
 }
 </style>
 </head>
@@ -204,21 +381,25 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
   </a>
 </div>
 
-<!-- 左側打卡滑道（scroll indicator） -->
-<div class="punch-rail">
-  <div class="punch-track">
-    <img id="punchCard" src="punch-card.png" alt="打卡紙">
-    <img id="punchMachine" src="punch.png" alt="打卡機">
-  </div>
+<!-- 左側隱形打卡滑軌 -->
+<div class="punch-track">
+  <img src="punchcard.png" alt="punch card" class="punch-card">
+  <img src="punchmachine.png" alt="punch machine" class="punch-machine">
 </div>
 
 <header>
-  <div class="bar"><div class="logo">GOOD FUN TEAM</div></div>
+  <div class="bar">
+    <div class="logo">
+      <img src="banner-goodfunteam.png" alt="GOOD FUN TEAM Banner" class="logo-img">
+    </div>
+  </div>
 </header>
 
 <main class="wrap">
   <section class="main">
-    <div><div class="grid" id="workGrid"></div></div>
+    <div>
+      <div class="grid" id="workGrid"></div>
+    </div>
     <aside class="about">
       <h3>孤芳小隊 GOOD FUN TEAM</h3>
       <p>由 ROTION87 與 No.423 共同組成。兩人結合影像、造型與手作物件的創作實踐；以角色「鼠」與「雪貂」為象徵，探索日常與異想的交界，在真實與虛構之間建立屬於兩人的敘事世界。</p>
@@ -257,38 +438,66 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
   </div>
 </div>
 
-<!-- 打卡完成彈出視窗 -->
-<div class="punch-overlay" id="punchOverlay">
-  <div class="punch-dialog">
-    <h2>打卡完成！</h2>
-    <p id="punchTime">2025-01-01 12:34:56</p>
-    <small>點擊任意處關閉</small>
+<!-- 打卡完成彈窗 -->
+<div id="punch-overlay">
+  <div class="punch-popup">
+    <div class="punch-title">PUNCHED!</div>
+    <div id="punch-time"></div>
+    <div class="punch-hint">點一下任意處關閉</div>
   </div>
 </div>
 
 <script>
 /* 作品資料 */
 const WORKS=[
-{id:'horsecard',cover:'work-horsecard.png',basket:'basket_red.png',title:{zh:'孤芳小隊 2026 馬年賀卡'},meta:{zh:'明信片／孔版印刷'},desc:{zh:'以馬年為主題，黏土手作、上色、分色孔版印刷。角色坐在搖搖馬上，象徵放慢腳步也沒關係。'}},
-{id:'hollow',cover:'work-hollow.png',basket:'basket_blue.png',title:{zh:'空心 IN PLACE'},meta:{zh:'攝影折頁小誌 × 水泥物件'},desc:{zh:'記錄城市裡被安放的空心磚。手工灌製水泥磚作為書衣，折頁象徵堆疊意象。'}},
-{id:'softdrinks',cover:'work-softdrinks.png',basket:'basket_orange.png',title:{zh:'Soft Drinks'},meta:{zh:'攝影 × 包裝設計'},desc:{zh:'2023–2025 的酒罐照片轉為絲巾並封入鋁罐，以不含酒精的柔軟形象對照飲酒的不可逆性。'}},
-{id:'thirty',cover:'work-30hours.png',basket:'basket_green.png',title:{zh:'30時間 2nd Edition'},meta:{zh:'攝影小誌（再販）｜A5'},desc:{zh:'以「30 小時制」觀察新宿／涉谷的城市節奏。2024 初版，2025 再編排再版。'}},
-{id:'handit',cover:'work-handit.png',basket:'basket_red.png',title:{zh:'Hand-it 手心貼'},meta:{zh:'文具設計'},desc:{zh:'怕忘記就寫在手上，於是做出可貼的手掌便利貼。'}},
-{id:'pastebook',cover:'work-pastebook.png',basket:'basket_blue.png',title:{zh:'PASTE BOOK 系列貼紙簿'},meta:{zh:'貼紙冊（A5）｜台灣篇／日本篇'},desc:{zh:'以「護照」為概念，街頭收集與留下的貼紙記錄。'}},
-{id:'questioncandle',cover:'work-questioncandle.png',basket:'basket_orange.png',title:{zh:'問號蠟燭籤'},meta:{zh:'張子｜半熟紙、毛根、紙張｜約 10 cm'},desc:{zh:'以台灣生日問號蠟燭為靈感，底座可抽籤：兩祝福一留白。'}},
-{id:'pipo',cover:'work-pipo.png',basket:'basket_green.png',title:{zh:'PIPO 君 張子'},meta:{zh:'立體角色張子｜約 20 cm'},desc:{zh:'以張子形式製作東京警視廳吉祥物「ピーポくん」。'}},
-{id:'radio',cover:'work-radio.png',basket:'basket_red.png',title:{zh:'孤芳收音機'},meta:{zh:'立體裝置｜約 25 cm'},desc:{zh:'以聲音作為共鳴象徵，描繪兩個角色在城市噪音中的連線。'}}
+  {id:'horsecard',cover:'work-horsecard.png',basket:'basket_red.png',
+   title:{zh:'孤芳小隊 2026 馬年賀卡'},
+   meta:{zh:'明信片／孔版印刷'},
+   desc:{zh:'以馬年為主題，黏土手作、上色、分色孔版印刷。角色坐在搖搖馬上，象徵放慢腳步也沒關係。'}},
+  {id:'hollow',cover:'work-hollow.png',basket:'basket_blue.png',
+   title:{zh:'空心 IN PLACE'},
+   meta:{zh:'攝影折頁小誌 × 水泥物件'},
+   desc:{zh:'記錄城市裡被安放的空心磚。手工灌製水泥磚作為書衣，折頁象徵堆疊意象。'}},
+  {id:'softdrinks',cover:'work-softdrinks.png',basket:'basket_orange.png',
+   title:{zh:'Soft Drinks'},
+   meta:{zh:'攝影 × 包裝設計'},
+   desc:{zh:'2023–2025 的酒罐照片轉為絲巾並封入鋁罐，以不含酒精的柔軟形象對照飲酒的不可逆性。'}},
+  {id:'thirty',cover:'work-30hours.png',basket:'basket_green.png',
+   title:{zh:'30時間 2nd Edition'},
+   meta:{zh:'攝影小誌（再販）｜A5'},
+   desc:{zh:'以「30 小時制」觀察新宿／涉谷的城市節奏。2024 初版，2025 再編排再版。'}},
+  {id:'handit',cover:'work-handit.png',basket:'basket_red.png',
+   title:{zh:'Hand-it 手心貼'},
+   meta:{zh:'文具設計'},
+   desc:{zh:'怕忘記就寫在手上，於是做出可貼的手掌便利貼。'}},
+  {id:'pastebook',cover:'work-pastebook.png',basket:'basket_blue.png',
+   title:{zh:'PASTE BOOK 系列貼紙簿'},
+   meta:{zh:'貼紙冊（A5）｜台灣篇／日本篇'},
+   desc:{zh:'以「護照」為概念，街頭收集與留下的貼紙記錄。'}},
+  {id:'questioncandle',cover:'work-questioncandle.png',basket:'basket_orange.png',
+   title:{zh:'問號蠟燭籤'},
+   meta:{zh:'張子｜半熟紙、毛根、紙張｜約 10 cm'},
+   desc:{zh:'以台灣生日問號蠟燭為靈感，底座可抽籤：兩祝福一留白。'}},
+  {id:'pipo',cover:'work-pipo.png',basket:'basket_green.png',
+   title:{zh:'PIPO 君 張子'},
+   meta:{zh:'立體角色張子｜約 20 cm'},
+   desc:{zh:'以張子形式製作東京警視廳吉祥物「ピーポくん」。'}},
+  {id:'radio',cover:'work-radio.png',basket:'basket_red.png',
+   title:{zh:'孤芳收音機'},
+   meta:{zh:'立體裝置｜約 25 cm'},
+   desc:{zh:'以聲音作為共鳴象徵，描繪兩個角色在城市噪音中的連線。'}}
 ];
 
 const grid=document.getElementById('workGrid');
 
 function renderGrid(){
   grid.innerHTML=WORKS.map(w=>`
-  <article class="card" data-id="${w.id}">
-    <img class="star" src="sticker_yellow.png" alt="">
-    <img class="photo" src="${w.cover}" alt="">
-    <div class="name">${w.title.zh}</div>
-  </article>`).join('');
+    <article class="card" data-id="${w.id}">
+      <img class="star" src="sticker_yellow.png" alt="">
+      <img class="photo" src="${w.cover}" alt="">
+      <div class="name">${w.title.zh}</div>
+    </article>
+  `).join('');
 }
 renderGrid();
 
@@ -301,7 +510,8 @@ const mdPhoto=document.getElementById('mdPhoto');
 const mdBasket=document.getElementById('mdBasket');
 
 function openModal(id){
-  const w=WORKS.find(x=>x.id===id);if(!w)return;
+  const w=WORKS.find(x=>x.id===id);
+  if(!w)return;
   mdTitle.textContent=w.title.zh;
   mdMeta.textContent=w.meta.zh||'';
   mdDesc.textContent=w.desc.zh||'';
@@ -312,59 +522,18 @@ function openModal(id){
 function closeModal(){modal.classList.remove('show');}
 
 grid.addEventListener('click',e=>{
-  const c=e.target.closest('.card');if(!c)return;openModal(c.dataset.id);
+  const c=e.target.closest('.card');
+  if(!c)return;
+  openModal(c.dataset.id);
 });
-modal.addEventListener('click',e=>{if(e.target.dataset.close)closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
-
-/* 打卡滑道：隨捲動移動打卡紙＋第一次到底打卡一次 */
-const punchCard=document.getElementById('punchCard');
-const punchMachine=document.getElementById('punchMachine');
-const punchOverlay=document.getElementById('punchOverlay');
-const punchTimeEl=document.getElementById('punchTime');
-const punchTrack=document.querySelector('.punch-track');
-let hasPunched=false;
-
-function updatePunchFromScroll(){
-  if(!punchTrack) return;
-  const doc=document.documentElement;
-  const scrollTop=doc.scrollTop||document.body.scrollTop;
-  const scrollHeight=(doc.scrollHeight-doc.clientHeight)||1;
-  const ratio=Math.max(0,Math.min(1,scrollTop/scrollHeight)); // 0~1
-
-  const trackHeight=punchTrack.clientHeight;
-  const cardHeight=punchCard.clientHeight;
-  const machineHeight=punchMachine.clientHeight;
-
-  const topLimit=0;
-  const bottomLimit=trackHeight-cardHeight-machineHeight*0.3; // 預留一點空間
-  const pos=topLimit+(bottomLimit-topLimit)*ratio;
-
-  punchCard.style.transform=`translate(-50%,${pos}px)`;
-
-  if(!hasPunched && ratio>=0.98){
-    hasPunched=true;
-    showPunchOverlay();
-  }
-}
-
-function showPunchOverlay(){
-  const now=new Date();
-  const options={year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'};
-  punchTimeEl.textContent=now.toLocaleString('zh-TW',options);
-  punchOverlay.classList.add('show');
-}
-
-window.addEventListener('scroll',updatePunchFromScroll);
-window.addEventListener('load',updatePunchFromScroll);
-window.addEventListener('resize',updatePunchFromScroll);
-
-/* 點擊遮罩關閉，但不重置 hasPunched（只打卡一次） */
-punchOverlay.addEventListener('click',()=>{
-  punchOverlay.classList.remove('show');
+modal.addEventListener('click',e=>{
+  if(e.target.dataset.close) closeModal();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeModal();
 });
 
-/* 語言按鈕目前只做 active 樣式（文字之後補，再擴充邏輯即可） */
+/* 語言按鈕目前只做 active 樣式 */
 const langBtns=document.querySelectorAll('.lang-btn');
 langBtns.forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -372,6 +541,71 @@ langBtns.forEach(btn=>{
     btn.classList.add('active');
   });
 });
+
+/* 打卡紙 & 打卡機：隱形滑軌 + 一次性打卡 */
+(function(){
+  const card=document.querySelector('.punch-card');
+  const machine=document.querySelector('.punch-machine');
+  const overlay=document.getElementById('punch-overlay');
+  const timeBox=document.getElementById('punch-time');
+  if(!card||!machine||!overlay||!timeBox)return;
+
+  let punched=false;
+  let machineShown=false;
+
+  function getScrollProgress(){
+    const scrollTop=window.scrollY||window.pageYOffset;
+    const docHeight=document.documentElement.scrollHeight;
+    const winHeight=window.innerHeight;
+    const maxScroll=docHeight-winHeight;
+    if(maxScroll<=0) return 0;
+    return Math.min(1,Math.max(0,scrollTop/maxScroll));
+  }
+
+  function updateCardPosition(){
+    const progress=getScrollProgress();
+    const minY=80;
+    const maxY=window.innerHeight-200;
+    const currentY=minY+(maxY-minY)*progress;
+    card.style.transform=`translateY(${currentY}px)`;
+
+    if(progress>0.9){
+      if(!machineShown){
+        machine.classList.add('visible');
+        machine.classList.add('shake');
+        setTimeout(()=>machine.classList.remove('shake'),500);
+        machineShown=true;
+      }else{
+        machine.classList.add('visible');
+      }
+    }
+
+    if(!punched && progress>0.98){
+      triggerPunch();
+    }
+  }
+
+  function triggerPunch(){
+    punched=true;
+    const now=new Date();
+    const yyyy=now.getFullYear();
+    const mm=String(now.getMonth()+1).padStart(2,'0');
+    const dd=String(now.getDate()).padStart(2,'0');
+    const hh=String(now.getHours()).padStart(2,'0');
+    const mi=String(now.getMinutes()).padStart(2,'0');
+    const ss=String(now.getSeconds()).padStart(2,'0');
+    timeBox.textContent=`${yyyy} / ${mm} / ${dd}   ${hh}:${mi}:${ss}`;
+    overlay.classList.add('show');
+  }
+
+  overlay.addEventListener('click',()=>{
+    overlay.classList.remove('show');
+  });
+
+  window.addEventListener('scroll',updateCardPosition);
+  window.addEventListener('resize',updateCardPosition);
+  updateCardPosition();
+})();
 </script>
 </body>
 </html>
