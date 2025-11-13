@@ -23,36 +23,40 @@ body{
 }
 
 /* 左側打卡滑道（scroll indicator） */
-/* 整條軌道做成「看不到」，只用來定位打卡紙與打卡機 */
 .punch-rail{
   position:fixed;
   left:10px;
-  top:0;
-  bottom:0;
-  width:0;
-  z-index:150;
-  pointer-events:none;
+  top:70px;
+  bottom:70px;
+  width:90px;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none; /* 不擋到頁面操作 */
 }
 .punch-track{
-  position:fixed;
-  left:70px;   /* 控制打卡紙／打卡機的水平位置 */
-  top:0;
-  height:100vh;
-  width:0;
-  pointer-events:none;
+  position:relative;
+  width:60px;
+  height:100%;
+  border-radius:20px;
+  border:3px solid #000;
+  background:linear-gradient(#b4ffd2,#eafff0);
+  box-shadow:0 4px 0 #000;
+  overflow:hidden;
 }
 #punchCard{
-  position:fixed;
-  left:70px;
+  position:absolute;
   width:72px;
-  transform:translate(-50%,80px); /* 初始 Y 位置，之後由 JS 只改 Y */
+  left:50%;
+  transform:translate(-50%,0); /* 預設在最上方，會被 JS 覆蓋 */
   filter:drop-shadow(2px 4px 4px rgba(0,0,0,.3));
 }
 #punchMachine{
-  position:fixed;
-  left:70px;
-  bottom:16px;
-  width:96px;
+  position:absolute;
+  width:80px;
+  left:50%;
+  bottom:-4px;
   transform:translateX(-50%);
 }
 
@@ -62,6 +66,14 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
   background:var(--red);border:3px solid #000;border-radius:20px;
   padding:20px 22px;max-width:1200px;margin:0 auto;
   box-shadow:var(--shadow-big);
+}
+/* 新增的 Banner 圖片樣式 */
+.banner{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:16px;
+  margin-bottom:8px;
 }
 .logo{
   margin-left:64px;line-height:1;font-weight:900;color:#ffd76c;font-size:40px;
@@ -202,13 +214,18 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
 
 <!-- 左側打卡滑道（scroll indicator） -->
 <div class="punch-rail">
-  <div class="punch-track"></div>
-  <img id="punchCard" src="punchcard.png" alt="打卡紙">
-  <img id="punchMachine" src="punchmachine.png" alt="打卡機">
+  <div class="punch-track">
+    <img id="punchCard" src="punch-card.png" alt="打卡紙">
+    <img id="punchMachine" src="punch.png" alt="打卡機">
+  </div>
 </div>
 
 <header>
-  <div class="bar"><div class="logo">GOOD FUN TEAM</div></div>
+  <div class="bar">
+    <!-- 新增 Banner 圖片 -->
+    <img src="banner-goodfunteam.png" alt="GOOD FUN TEAM Banner" class="banner">
+    <div class="logo">GOOD FUN TEAM</div>
+  </div>
 </header>
 
 <main class="wrap">
@@ -317,31 +334,28 @@ const punchCard=document.getElementById('punchCard');
 const punchMachine=document.getElementById('punchMachine');
 const punchOverlay=document.getElementById('punchOverlay');
 const punchTimeEl=document.getElementById('punchTime');
+const punchTrack=document.querySelector('.punch-track');
 let hasPunched=false;
 
 function updatePunchFromScroll(){
+  if(!punchTrack) return;
   const doc=document.documentElement;
   const scrollTop=doc.scrollTop||document.body.scrollTop;
   const scrollHeight=(doc.scrollHeight-doc.clientHeight)||1;
   const ratio=Math.max(0,Math.min(1,scrollTop/scrollHeight)); // 0~1
 
-  const viewH=window.innerHeight;
-  const topOffset=80;   // 打卡紙可滑動的起點
-  const bottomOffset=140; // 底部預留空間（避免壓到打卡機）
-  const travel=Math.max(0,viewH-topOffset-bottomOffset);
-  const posY=topOffset+travel*ratio;
+  const trackHeight=punchTrack.clientHeight;
+  const cardHeight=punchCard.clientHeight;
+  const machineHeight=punchMachine.clientHeight;
 
-  punchCard.style.transform=`translate(-50%,${posY}px)`;
+  const topLimit=0;
+  const bottomLimit=trackHeight-cardHeight-machineHeight*0.3; // 預留一點空間
+  const pos=topLimit+(bottomLimit-topLimit)*ratio;
+
+  punchCard.style.transform=`translate(-50%,${pos}px)`;
 
   if(!hasPunched && ratio>=0.98){
     hasPunched=true;
-
-    // 打卡機抖一下
-    punchMachine.style.transform='translateX(-50%) translateY(-4px)';
-    setTimeout(()=>{
-      punchMachine.style.transform='translateX(-50%)';
-    },160);
-
     showPunchOverlay();
   }
 }
