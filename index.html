@@ -22,11 +22,42 @@ body{
   background-size:100% auto;
 }
 
-/* 左側綠柱 */
-.page-stripe{
-  position:fixed;left:24px;top:20px;bottom:20px;width:26px;z-index:1;
-  background:var(--green);border:3px solid #000;border-radius:12px;
-  box-shadow:2px 2px 0 #000 inset,0 4px 0 #000;
+/* 左側打卡滑道（scroll indicator） */
+.punch-rail{
+  position:fixed;
+  left:10px;
+  top:70px;
+  bottom:70px;
+  width:90px;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none; /* 不擋到頁面操作 */
+}
+.punch-track{
+  position:relative;
+  width:60px;
+  height:100%;
+  border-radius:20px;
+  border:3px solid #000;
+  background:linear-gradient(#b4ffd2,#eafff0);
+  box-shadow:0 4px 0 #000;
+  overflow:hidden;
+}
+#punchCard{
+  position:absolute;
+  width:72px;
+  left:50%;
+  transform:translate(-50%,0); /* 預設在最上方，會被 JS 覆蓋 */
+  filter:drop-shadow(2px 4px 4px rgba(0,0,0,.3));
+}
+#punchMachine{
+  position:absolute;
+  width:80px;
+  left:50%;
+  bottom:-4px;
+  transform:translateX(-50%);
 }
 
 /* 頂部標題 */
@@ -66,7 +97,7 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
   filter:drop-shadow(4px 4px 0 #000);transition:transform .2s;}
 .photo{position:absolute;inset:0;margin:auto;width:min(72%,540px);height:min(72%,540px);object-fit:contain;
   filter:drop-shadow(0 12px 18px rgba(0,0,0,.28));transition:transform .2s;}
-/* 作品名 — 白字＋紅描邊＋黑陰影（可讀性強） */
+/* 作品名 — 白字＋紅描邊＋黑陰影 */
 .name{
   position:absolute;left:50%;bottom:8%;transform:translateX(-50%);
   font-weight:900;font-size:15px;white-space:nowrap;color:#fff;
@@ -107,7 +138,7 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
 }
 .lang-btn.active{outline:3px solid var(--orange)}
 
-/* 彈窗 */
+/* 作品彈窗 */
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:90;}
 .modal.show{display:flex}
 .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5)}
@@ -125,6 +156,40 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
   max-height:80%;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(0,0,0,.25));}
 .meta{color:#666;font-size:14px;margin:.2rem 0 1rem}
 .desc{white-space:pre-wrap;line-height:1.7}
+
+/* 打卡完成彈出視窗 */
+.punch-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:250;
+}
+.punch-overlay.show{display:flex}
+.punch-dialog{
+  background:#fffce7;
+  border-radius:20px;
+  border:3px solid #000;
+  padding:18px 24px;
+  max-width:280px;
+  text-align:center;
+  box-shadow:var(--shadow-big);
+}
+.punch-dialog h2{
+  margin-bottom:8px;
+  font-size:20px;
+}
+.punch-dialog p{
+  margin:4px 0;
+  font-size:14px;
+}
+.punch-dialog small{
+  display:block;
+  margin-top:10px;
+  color:#666;
+}
 </style>
 </head>
 <body>
@@ -139,7 +204,13 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
   </a>
 </div>
 
-<div class="page-stripe" aria-hidden="true"></div>
+<!-- 左側打卡滑道（scroll indicator） -->
+<div class="punch-rail">
+  <div class="punch-track">
+    <img id="punchCard" src="punch-card.png" alt="打卡紙">
+    <img id="punchMachine" src="punch.png" alt="打卡機">
+  </div>
+</div>
 
 <header>
   <div class="bar"><div class="logo">GOOD FUN TEAM</div></div>
@@ -165,7 +236,7 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
   <button class="lang-btn" data-lang="en">🇬🇧</button>
 </div>
 
-<!-- 彈窗 -->
+<!-- 作品彈窗 -->
 <div class="modal" id="modal">
   <div class="backdrop" data-close="1"></div>
   <div class="panel">
@@ -186,8 +257,17 @@ header{position:relative;z-index:2;padding:18px 16px 8px;}
   </div>
 </div>
 
+<!-- 打卡完成彈出視窗 -->
+<div class="punch-overlay" id="punchOverlay">
+  <div class="punch-dialog">
+    <h2>打卡完成！</h2>
+    <p id="punchTime">2025-01-01 12:34:56</p>
+    <small>點擊任意處關閉</small>
+  </div>
+</div>
+
 <script>
-/* 你的九件作品資料（可直接改字） */
+/* 作品資料 */
 const WORKS=[
 {id:'horsecard',cover:'work-horsecard.png',basket:'basket_red.png',title:{zh:'孤芳小隊 2026 馬年賀卡'},meta:{zh:'明信片／孔版印刷'},desc:{zh:'以馬年為主題，黏土手作、上色、分色孔版印刷。角色坐在搖搖馬上，象徵放慢腳步也沒關係。'}},
 {id:'hollow',cover:'work-hollow.png',basket:'basket_blue.png',title:{zh:'空心 IN PLACE'},meta:{zh:'攝影折頁小誌 × 水泥物件'},desc:{zh:'記錄城市裡被安放的空心磚。手工灌製水泥磚作為書衣，折頁象徵堆疊意象。'}},
@@ -200,7 +280,6 @@ const WORKS=[
 {id:'radio',cover:'work-radio.png',basket:'basket_red.png',title:{zh:'孤芳收音機'},meta:{zh:'立體裝置｜約 25 cm'},desc:{zh:'以聲音作為共鳴象徵，描繪兩個角色在城市噪音中的連線。'}}
 ];
 
-let LANG='zh',currentId=null;
 const grid=document.getElementById('workGrid');
 
 function renderGrid(){
@@ -213,7 +292,7 @@ function renderGrid(){
 }
 renderGrid();
 
-/* 彈窗互動 */
+/* 作品彈窗互動 */
 const modal=document.getElementById('modal');
 const mdTitle=document.getElementById('mdTitle');
 const mdMeta=document.getElementById('mdMeta');
@@ -223,7 +302,6 @@ const mdBasket=document.getElementById('mdBasket');
 
 function openModal(id){
   const w=WORKS.find(x=>x.id===id);if(!w)return;
-  currentId=id;
   mdTitle.textContent=w.title.zh;
   mdMeta.textContent=w.meta.zh||'';
   mdDesc.textContent=w.desc.zh||'';
@@ -232,11 +310,68 @@ function openModal(id){
   modal.classList.add('show');
 }
 function closeModal(){modal.classList.remove('show');}
+
 grid.addEventListener('click',e=>{
   const c=e.target.closest('.card');if(!c)return;openModal(c.dataset.id);
 });
 modal.addEventListener('click',e=>{if(e.target.dataset.close)closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* 打卡滑道：隨捲動移動打卡紙＋第一次到底打卡一次 */
+const punchCard=document.getElementById('punchCard');
+const punchMachine=document.getElementById('punchMachine');
+const punchOverlay=document.getElementById('punchOverlay');
+const punchTimeEl=document.getElementById('punchTime');
+const punchTrack=document.querySelector('.punch-track');
+let hasPunched=false;
+
+function updatePunchFromScroll(){
+  if(!punchTrack) return;
+  const doc=document.documentElement;
+  const scrollTop=doc.scrollTop||document.body.scrollTop;
+  const scrollHeight=(doc.scrollHeight-doc.clientHeight)||1;
+  const ratio=Math.max(0,Math.min(1,scrollTop/scrollHeight)); // 0~1
+
+  const trackHeight=punchTrack.clientHeight;
+  const cardHeight=punchCard.clientHeight;
+  const machineHeight=punchMachine.clientHeight;
+
+  const topLimit=0;
+  const bottomLimit=trackHeight-cardHeight-machineHeight*0.3; // 預留一點空間
+  const pos=topLimit+(bottomLimit-topLimit)*ratio;
+
+  punchCard.style.transform=`translate(-50%,${pos}px)`;
+
+  if(!hasPunched && ratio>=0.98){
+    hasPunched=true;
+    showPunchOverlay();
+  }
+}
+
+function showPunchOverlay(){
+  const now=new Date();
+  const options={year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'};
+  punchTimeEl.textContent=now.toLocaleString('zh-TW',options);
+  punchOverlay.classList.add('show');
+}
+
+window.addEventListener('scroll',updatePunchFromScroll);
+window.addEventListener('load',updatePunchFromScroll);
+window.addEventListener('resize',updatePunchFromScroll);
+
+/* 點擊遮罩關閉，但不重置 hasPunched（只打卡一次） */
+punchOverlay.addEventListener('click',()=>{
+  punchOverlay.classList.remove('show');
+});
+
+/* 語言按鈕目前只做 active 樣式（文字之後補，再擴充邏輯即可） */
+const langBtns=document.querySelectorAll('.lang-btn');
+langBtns.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    langBtns.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
 </script>
 </body>
 </html>
