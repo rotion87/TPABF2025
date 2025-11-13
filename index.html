@@ -1,704 +1,375 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <title>GOOD FUN TEAM｜作品一覽</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;
-      background:#bdf4ff url("bg-main.png") repeat-y center top; /* 你提供的長背景圖檔名 */
-      background-size:cover;
-      color:#111;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title> 孤芳小隊 GOOD FUN TEAM </title>
+<meta name="color-scheme" content="light only" />
+<style>
+:root{
+  --ink:#121212;
+  --red:#ff3b2f;
+  --orange:#ffd15a;
+  --green:#16b75b;
+  --shadow-big:0 18px 50px rgba(0,0,0,.35);
+  --shadow-med:0 10px 30px rgba(0,0,0,.18),0 3px 10px rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial;
+  color:var(--ink);
+  background:#eafcff url("bg-market.png") center top repeat-y fixed;
+  background-size:100% auto;
+}
 
-    /* ---------- 頂部 Banner & IG ---------- */
-    .top-bar{
-      position:relative;
-      width:100%;
-      background:#f3482c;
-      border-bottom:5px solid #000;
-      padding:6px 10px;
-    }
-    .top-banner{
-      display:block;
-      margin:0 auto;
-      max-width:100%;
-      height:auto;
-    }
-    .ig-icons{
-      position:absolute;
-      right:8px;
-      top:6px;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .ig-icon{
-      width:50px;
-      height:50px;
-      border-radius:16px;
-      border:3px solid #000;
-      overflow:hidden;
-      background:#fff;
-      box-shadow:0 3px 0 #000;
-    }
-    .ig-icon img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
+/* 左側打卡滑道（scroll indicator） */
+/* 整條軌道做成「看不到」，只用來定位打卡紙與打卡機 */
+.punch-rail{
+  position:fixed;
+  left:10px;
+  top:0;
+  bottom:0;
+  width:0;
+  z-index:150;
+  pointer-events:none;
+}
+.punch-track{
+  position:fixed;
+  left:70px;   /* 控制打卡紙／打卡機的水平位置 */
+  top:0;
+  height:100vh;
+  width:0;
+  pointer-events:none;
+}
+#punchCard{
+  position:fixed;
+  left:70px;
+  width:72px;
+  transform:translate(-50%,80px); /* 初始 Y 位置，之後由 JS 只改 Y */
+  filter:drop-shadow(2px 4px 4px rgba(0,0,0,.3));
+}
+#punchMachine{
+  position:fixed;
+  left:70px;
+  bottom:16px;
+  width:96px;
+  transform:translateX(-50%);
+}
 
-    /* ---------- 主內容 ---------- */
-    .page-inner{
-      max-width:900px;
-      margin:10px auto 120px;
-      padding:0 10px 40px;
-    }
+/* 頂部標題 */
+header{position:relative;z-index:2;padding:18px 16px 8px;}
+.bar{
+  background:var(--red);border:3px solid #000;border-radius:20px;
+  padding:20px 22px;max-width:1200px;margin:0 auto;
+  box-shadow:var(--shadow-big);
+}
+.logo{
+  margin-left:64px;line-height:1;font-weight:900;color:#ffd76c;font-size:40px;
+  text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;
+}
+@media(min-width:960px){.logo{font-size:54px}}
 
-    .intro-box{
-      background:rgba(255,255,255,0.9);
-      border-radius:18px;
-      border:4px solid #000;
-      padding:14px 16px;
-      margin-bottom:18px;
-      box-shadow:0 4px 0 #000;
-    }
-    .intro-title{
-      font-weight:900;
-      font-size:20px;
-      margin-bottom:6px;
-    }
-    .intro-text{
-      font-size:14px;
-      line-height:1.7;
-    }
+/* 主內容 */
+.wrap{max-width:1200px;margin:16px auto 120px;padding:0 12px;position:relative;z-index:2;}
+.main{display:grid;gap:20px;grid-template-columns:1fr;}
+@media(min-width:1024px){.main{grid-template-columns:1.4fr .6fr}}
 
-    /* ---------- 作品格子 ---------- */
-    .works-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:18px 10px;
-    }
-    @media (max-width:650px){
-      .works-grid{
-        grid-template-columns:1fr;
-      }
-    }
+/* 右側介紹 */
+.about{
+  background:rgba(255,247,202,.97);
+  border:3px solid #000;border-radius:18px;padding:16px 18px;
+  box-shadow:var(--shadow-med);
+}
+.about h3{margin:6px 0 10px;font-size:18px}
+.about p{margin:0 0 10px;line-height:1.7}
 
-    .work-card{
-      cursor:pointer;
-      text-align:center;
-      position:relative;
-    }
-    .work-star-wrap{
-      position:relative;
-      width:100%;
-      padding-top:100%; /* 正方形 */
-    }
-    .work-star{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .work-star img.star-bg{
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      filter:drop-shadow(4px 4px 0 #000);
-    }
-    .work-star img.work-thumb{
-      position:absolute;
-      max-width:70%;
-      max-height:70%;
-      object-fit:contain;
-    }
-    .work-title{
-      margin-top:4px;
-      font-size:14px;
-      font-weight:900;
-      color:#ff0;
-      -webkit-text-stroke:2px #d90000;
-      text-stroke:2px #d90000;
-      text-shadow:0 0 3px #d90000;
-    }
+/* 作品牆：兩欄 */
+.grid{display:grid;gap:22px;grid-template-columns:repeat(1,1fr)}
+@media(min-width:620px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.grid{grid-template-columns:repeat(2,1fr)}}
 
-    /* ---------- 彈出作品詳情 ---------- */
-    .modal-backdrop{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.5);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:200;
-    }
-    .modal-backdrop.active{
-      display:flex;
-    }
-    .modal{
-      width:90%;
-      max-width:900px;
-      max-height:90vh;
-      background:rgba(255,255,255,0.95);
-      border-radius:18px;
-      border:4px solid #000;
-      overflow:hidden;
-      position:relative;
-      box-shadow:0 6px 0 #000;
-      display:flex;
-      flex-direction:row;
-    }
-    @media (max-width:700px){
-      .modal{
-        flex-direction:column;
-      }
-    }
-    .modal-basket{
-      flex:1.1;
-      background:#fff center/cover no-repeat;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:10px;
-    }
-    .modal-basket img{
-      max-width:100%;
-      max-height:100%;
-      object-fit:contain;
-    }
-    .modal-text{
-      flex:1;
-      padding:16px 18px;
-      font-size:13px;
-      line-height:1.7;
-      overflow-y:auto;
-      background:#ffe47a;
-    }
-    .modal-text h2{
-      font-size:18px;
-      margin-bottom:6px;
-    }
-    .modal-text .meta{
-      font-weight:bold;
-      margin-bottom:8px;
-    }
-    .modal-close{
-      position:absolute;
-      right:8px;
-      top:4px;
-      font-size:24px;
-      cursor:pointer;
-      font-weight:bold;
-      text-shadow:0 2px 0 #fff;
-    }
+.card{position:relative;cursor:pointer;aspect-ratio:4/3;}
+.star{position:absolute;inset:0;margin:auto;width:88%;object-fit:contain;
+  filter:drop-shadow(4px 4px 0 #000);transition:transform .2s;}
+.photo{position:absolute;inset:0;margin:auto;width:min(72%,540px);height:min(72%,540px);object-fit:contain;
+  filter:drop-shadow(0 12px 18px rgba(0,0,0,.28));transition:transform .2s;}
+/* 作品名 — 白字＋紅描邊＋黑陰影 */
+.name{
+  position:absolute;left:50%;bottom:8%;transform:translateX(-50%);
+  font-weight:900;font-size:15px;white-space:nowrap;color:#fff;
+  text-shadow:
+    -2px -2px 0 #c90000, 2px -2px 0 #c90000,
+    -2px  2px 0 #c90000, 2px  2px 0 #c90000,
+     0px  3px 4px rgba(0,0,0,.55);
+  letter-spacing:.5px;
+}
+@media(min-width:768px){ .name{font-size:18px;bottom:9%} }
 
-    /* ---------- 語言切換（右下角） ---------- */
-    .lang-switcher{
-      position:fixed;
-      right:14px;
-      bottom:14px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      z-index:180;
-    }
-    .lang-btn{
-      width:60px;
-      height:42px;
-      border-radius:16px;
-      border:3px solid #000;
-      background:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:20px;
-      cursor:pointer;
-      box-shadow:0 3px 0 #000;
-    }
-    .lang-btn.active{
-      background:#ffeb3b;
-    }
+.card:hover .photo{transform:scale(1.02)}
+.card:hover .star{transform:scale(1.01)}
 
-    /* ---------- 打卡滑軌 & 打卡機 ---------- */
-    .punch-track{
-      position:fixed;
-      left:70px;  /* 打卡紙 & 打卡機 的 X 位置 */
-      top:0;
-      height:100vh;
-      width:0;
-      pointer-events:none;
-      z-index:150;
-    }
-    .punch-card{
-      position:absolute;
-      left:0;
-      width:100px;
-      transform:translate(-50%,80px);
-      transition:transform .25s ease-out;
-      filter:drop-shadow(0 3px 3px rgba(0,0,0,.25));
-    }
-    .punch-machine{
-      position:fixed;
-      left:70px;
-      bottom:10px;
-      width:130px;
-      transform:translateX(-50%);
-      opacity:1;
-      transition:opacity .4s ease-out,transform .4s ease-out;
-      pointer-events:none;
-      filter:drop-shadow(0 4px 4px rgba(0,0,0,.3));
-      z-index:140;
-    }
+/* IG 圖示（右上角固定） */
+.ig-icons{
+  position:fixed;top:16px;right:20px;z-index:200;
+  display:flex;flex-direction:column;gap:10px;
+}
+.ig-icons img{
+  width:44px;height:44px;display:block;
+  border:2px solid #000;border-radius:10px;background:#fff;
+  box-shadow:2px 2px 0 #000;
+  transition:transform .25s,box-shadow .25s;
+}
+.ig-icons img:hover{transform:scale(1.1) rotate(-3deg);box-shadow:3px 3px 0 #000;}
+@media(max-width:600px){.ig-icons img{width:36px;height:36px}}
 
-    /* ---------- 打卡彈窗 ---------- */
-    .punch-popup-backdrop{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:250;
-    }
-    .punch-popup-backdrop.active{
-      display:flex;
-    }
-    .punch-popup{
-      background:#fff;
-      border-radius:18px;
-      border:4px solid #000;
-      padding:16px 22px;
-      box-shadow:0 4px 0 #000;
-      max-width:290px;
-      text-align:center;
-      font-size:14px;
-      line-height:1.6;
-    }
-    .punch-popup-title{
-      font-weight:900;
-      font-size:16px;
-      margin-bottom:8px;
-    }
-    .punch-popup-time{
-      font-family:"SF Mono","Menlo",monospace;
-      font-size:15px;
-      margin:6px 0 2px;
-    }
-    .punch-popup-tip{
-      font-size:12px;
-      color:#444;
-      margin-top:10px;
-    }
-  </style>
+/* 語言切換（右下角固定） */
+.lang-fab{
+  position:fixed;right:14px;bottom:14px;z-index:150;
+  display:flex;flex-direction:column;gap:6px;
+}
+.lang-btn{
+  width:44px;height:44px;border-radius:12px;background:#fff;
+  border:2px solid #000;display:flex;align-items:center;justify-content:center;
+  font-size:22px;cursor:pointer;box-shadow:2px 2px 0 #000;
+}
+.lang-btn.active{outline:3px solid var(--orange)}
+
+/* 作品彈窗 */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:90;}
+.modal.show{display:flex}
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.panel{position:relative;z-index:1;background:#fff;max-width:min(1100px,92vw);
+  border:3px solid #000;border-radius:24px;box-shadow:var(--shadow-big);overflow:hidden;}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:14px 18px;border-bottom:3px solid #000;background:#fffce7;}
+.panel-title{font-weight:900;font-size:18px}
+.close{border:2px solid #000;border-radius:10px;background:#ffef6a;
+  padding:6px 10px;font-weight:900;cursor:pointer;box-shadow:2px 2px 0 #000;}
+.panel-body{display:grid;gap:18px;padding:18px;grid-template-columns:1.1fr .9fr;}
+@media(max-width:860px){.panel-body{grid-template-columns:1fr;padding:14px}}
+.basket-bg{width:100%;display:block;border-radius:16px;box-shadow:var(--shadow-med);}
+.work-photo{position:absolute;inset:0;margin:auto;max-width:min(85%,720px);
+  max-height:80%;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(0,0,0,.25));}
+.meta{color:#666;font-size:14px;margin:.2rem 0 1rem}
+.desc{white-space:pre-wrap;line-height:1.7}
+
+/* 打卡完成彈出視窗 */
+.punch-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:250;
+}
+.punch-overlay.show{display:flex}
+.punch-dialog{
+  background:#fffce7;
+  border-radius:20px;
+  border:3px solid #000;
+  padding:18px 24px;
+  max-width:280px;
+  text-align:center;
+  box-shadow:var(--shadow-big);
+}
+.punch-dialog h2{
+  margin-bottom:8px;
+  font-size:20px;
+}
+.punch-dialog p{
+  margin:4px 0;
+  font-size:14px;
+}
+.punch-dialog small{
+  display:block;
+  margin-top:10px;
+  color:#666;
+}
+</style>
 </head>
 <body>
 
-  <!-- 頂部 Banner + IG -->
-  <header class="top-bar">
-    <!-- 你做好的 PNG Banner：建議 1200 x 220px -->
-    <img src="banner-goodfun.png" alt="GOOD FUN TEAM" class="top-banner" />
-    <div class="ig-icons">
-      <a href="https://www.instagram.com/rotion87" target="_blank" class="ig-icon">
-        <img src="ig-rotion.png" alt="ROTION87 IG">
-      </a>
-      <a href="https://www.instagram.com/l72uo_" target="_blank" class="ig-icon">
-        <img src="ig-l72uo.png" alt="No.423 IG">
-      </a>
+<!-- IG 圖示 -->
+<div class="ig-icons">
+  <a href="https://www.instagram.com/rotion87" target="_blank" rel="noopener">
+    <img src="ig-rotion.png" alt="Rotion87 IG">
+  </a>
+  <a href="https://www.instagram.com/l72uo_" target="_blank" rel="noopener">
+    <img src="ig-l72uo.png" alt="No.423 IG">
+  </a>
+</div>
+
+<!-- 左側打卡滑道（scroll indicator） -->
+<div class="punch-rail">
+  <div class="punch-track"></div>
+  <img id="punchCard" src="punchcard.png" alt="打卡紙">
+  <img id="punchMachine" src="punchmachine.png" alt="打卡機">
+</div>
+
+<header>
+  <div class="bar"><div class="logo">GOOD FUN TEAM</div></div>
+</header>
+
+<main class="wrap">
+  <section class="main">
+    <div><div class="grid" id="workGrid"></div></div>
+    <aside class="about">
+      <h3>孤芳小隊 GOOD FUN TEAM</h3>
+      <p>由 ROTION87 與 No.423 共同組成。兩人結合影像、造型與手作物件的創作實踐；以角色「鼠」與「雪貂」為象徵，探索日常與異想的交界，在真實與虛構之間建立屬於兩人的敘事世界。</p>
+      <p><b>ROTION87：</b>以觀察為起點，延伸至書籍、物件與裝置的創作；喜歡做一些好玩的事，從日常中找到新的創作方式與表達語言。</p>
+      <p><b>No.423：</b>擅長平面視覺、字型、插畫與動態設計；利用上班後殘餘的設計力，做一些讓自己開心的創作。</p>
+    </aside>
+  </section>
+</main>
+
+<!-- 語言切換 -->
+<div class="lang-fab" id="langFab">
+  <button class="lang-btn" data-lang="zh">🇹🇼</button>
+  <button class="lang-btn" data-lang="ja">🇯🇵</button>
+  <button class="lang-btn" data-lang="ko">🇰🇷</button>
+  <button class="lang-btn" data-lang="en">🇬🇧</button>
+</div>
+
+<!-- 作品彈窗 -->
+<div class="modal" id="modal">
+  <div class="backdrop" data-close="1"></div>
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title" id="mdTitle">—</div>
+      <button class="close" data-close="1">✕</button>
     </div>
-  </header>
-
-  <!-- 打卡滑軌 & 打卡機 -->
-  <div class="punch-track">
-    <img src="punchcard.png" alt="punch card" class="punch-card" id="punchCard">
-  </div>
-  <img src="punchmachine.png" alt="punch machine" class="punch-machine" id="punchMachine">
-
-  <!-- 語言切換 -->
-  <div class="lang-switcher">
-    <button class="lang-btn active" data-lang="tw">🇹🇼</button>
-    <button class="lang-btn" data-lang="jp">🇯🇵</button>
-    <button class="lang-btn" data-lang="kr">🇰🇷</button>
-    <button class="lang-btn" data-lang="en">🇬🇧</button>
-  </div>
-
-  <!-- 打卡彈窗 -->
-  <div class="punch-popup-backdrop" id="punchPopup">
-    <div class="punch-popup">
-      <div class="punch-popup-title">今日打卡完成 ✅</div>
-      <div>感謝光臨 <b>GOOD FUN TEAM</b> 線上水果店！</div>
-      <div class="punch-popup-time" id="punchTimeText">2025-01-01 12:34:56</div>
-      <div class="punch-popup-tip">（點擊任意處關閉）</div>
-    </div>
-  </div>
-
-  <main class="page-inner">
-    <!-- 團隊介紹 -->
-    <section class="intro-box">
-      <div class="intro-title">孤芳小隊 GOOD FUN TEAM</div>
-      <p class="intro-text">
-        由 ROTION87 與 No.423 共同組成。兩人結合影像、造型與手作物件的創作實踐，
-        以角色「鼠」與「雪貂」為象徵，探索日常與異想的交界，在真實與虛構之間建立屬於兩人的敘事世界。
-      </p>
-    </section>
-
-    <!-- 作品卡片網格 -->
-    <section class="works-grid">
-
-      <!-- 1 馬年賀卡 -->
-      <div class="work-card" data-target="modal-horse">
-        <div class="work-star-wrap">
-          <div class="work-star">
-            <img src="star-yellow.png" class="star-bg" alt="">
-            <img src="work-horsecard.png" class="work-thumb" alt="馬年賀卡">
-          </div>
-        </div>
-        <div class="work-title">孤芳小隊 2026 馬年賀卡</div>
+    <div class="panel-body">
+      <div class="basket-wrap">
+        <img class="basket-bg" id="mdBasket" alt="">
+        <img class="work-photo" id="mdPhoto" alt="">
       </div>
-
-      <!-- 2 空心 IN PLACE -->
-      <div class="work-card" data-target="modal-hollow">
-        <div class="work-star-wrap">
-          <div class="work-star">
-            <img src="star-yellow.png" class="star-bg" alt="">
-            <img src="work-hollow.png" class="work-thumb" alt="空心 IN PLACE">
-          </div>
-        </div>
-        <div class="work-title">《空心 IN PLACE》攝影折頁小誌</div>
-      </div>
-
-      <!-- 3 Soft Drinks -->
-      <div class="work-card" data-target="modal-soft">
-        <div class="work-star-wrap">
-          <div class="work-star">
-            <img src="star-yellow.png" class="star-bg" alt="">
-            <img src="work-softdrinks.png" class="work-thumb" alt="Soft Drinks">
-          </div>
-        </div>
-        <div class="work-title">《Soft Drinks》酒罐絲巾</div>
-      </div>
-
-      <!-- 4 30時間 -->
-      <div class="work-card" data-target="modal-30h">
-        <div class="work-star-wrap">
-          <div class="work-star">
-            <img src="star-yellow.png" class="star-bg" alt="">
-            <img src="work-30hours.png" class="work-thumb" alt="30時間">
-          </div>
-        </div>
-        <div class="work-title">《30時間》攝影小誌 2nd</div>
-      </div>
-
-      <!-- 5 Hand-it -->
-      <div class="work-card" data-target="modal-handit">
-        <div class="work-star-wrap">
-          <div class="work-star">
-            <img src="star-yellow.png" class="star-bg" alt="">
-            <img src="work-handit.png" class="work-thumb" alt="Hand-it">
-          </div>
-        </div>
-        <div class="work-title">《Hand-it 手心貼》便利貼</div>
-      </div>
-
-      <!-- 6 PASTE BOOK 台灣篇 -->
-      <div class="work-card" data-target="modal-paste-tw">
-        <div class="work-star-wrap">
-          <div class="work-star">
-            <img src="star-yellow.png" class="star-bg" alt="">
-            <img src="work-pastebook-tw.png" class="work-thumb" alt="PASTE BOOK TW">
-          </div>
-        </div>
-        <div class="work-title">《PASTE BOOK》台灣篇</div>
-      </div>
-
-      <!-- 7 PASTE BOOK 日本篇 -->
-      <div class="work-card" data-target="modal-paste-jp">
-        <div class="work-star-wrap">
-          <div class="work-star">
-            <img src="star-yellow.png" class="star-bg" alt="">
-            <img src="work-pastebook-jp.png" class="work-thumb" alt="PASTE BOOK JP">
-          </div>
-        </div>
-        <div class="work-title">《PASTE BOOK》日本篇</div>
-      </div>
-
-      <!-- 8 問號蠟燭籤 -->
-      <div class="work-card" data-target="modal-candle">
-        <div class="work-star-wrap">
-          <div class="work-star">
-            <img src="star-yellow.png" class="star-bg" alt="">
-            <img src="work-questioncandle.png" class="work-thumb" alt="問號蠟燭籤">
-          </div>
-        </div>
-        <div class="work-title">「問號蠟燭籤」張子</div>
-      </div>
-
-      <!-- 9 PIPO君 張子 -->
-      <div class="work-card" data-target="modal-pipo">
-        <div class="work-star-wrap">
-          <div class="work-star">
-            <img src="star-yellow.png" class="star-bg" alt="">
-            <img src="work-pipo.png" class="work-thumb" alt="PIPO君 張子">
-          </div>
-        </div>
-        <div class="work-title">PIPO君 張子</div>
-      </div>
-
-    </section>
-  </main>
-
-  <!-- ---------- 各作品 Modal ---------- -->
-
-  <div class="modal-backdrop" id="modal-horse">
-    <div class="modal">
-      <div class="modal-basket" style="background-image:url('basket-red.png');">
-        <img src="work-horsecard.png" alt="馬年賀卡">
-      </div>
-      <div class="modal-text">
-        <div class="modal-close" data-close>&times;</div>
-        <h2>孤芳小隊 2026 馬年賀卡</h2>
-        <div class="meta">類型：明信片／孔版印刷</div>
-        <p>
-          以馬年為主題，先以黏土手作並上色完成原型，再將成品拍攝後分色，
-          製作成孔版印刷明信片。孤芳小隊的兩個角色——鼠與雪貂——坐上賽馬版本的搖搖馬。
-        </p>
-        <p>
-          作品思考在人生不斷追尋目標的過程中，也許就像坐在搖搖馬上，看似往前，
-          其實始終停在原地。想傳達的是「放慢腳步也沒關係」，與其執著於抵達，
-          不如好好感受當下，以童趣形式呈現關於前進與停留的思考。
-        </p>
+      <div>
+        <div class="meta" id="mdMeta"></div>
+        <div class="desc" id="mdDesc"></div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="modal-backdrop" id="modal-hollow">
-    <div class="modal">
-      <div class="modal-basket" style="background-image:url('basket-blue.png');">
-        <img src="work-hollow.png" alt="空心 IN PLACE">
-      </div>
-      <div class="modal-text">
-        <div class="modal-close" data-close>&times;</div>
-        <h2>《空心 IN PLACE》</h2>
-        <div class="meta">類型：攝影折頁小誌 × 水泥物件</div>
-        <p>
-          創作起點來自 2024 年搬到新城市生活，在適應過程中開始注意路邊形形色色的空心磚。
-          有的拿來種花、有的堆成臨時牆、有的用來墊腳，甚至出現在魚缸裡。
-        </p>
-        <p>
-          我開始以照片收集它們，想像每一塊磚都在堅守自己的任務。《空心 IN PLACE》記錄的是
-          那些被安放的情緒，也是我在異地生活中，重新抓住生活重量的過程，讓「空心」的部份也有了存在的意義。
-        </p>
-        <p>
-          作品以手工灌製的特製水泥空心磚作為外殼，摺頁小誌可直接嵌入，像是一本被真正「安放」在磚塊裡的書。
-        </p>
-      </div>
-    </div>
+<!-- 打卡完成彈出視窗 -->
+<div class="punch-overlay" id="punchOverlay">
+  <div class="punch-dialog">
+    <h2>打卡完成！</h2>
+    <p id="punchTime">2025-01-01 12:34:56</p>
+    <small>點擊任意處關閉</small>
   </div>
+</div>
 
-  <div class="modal-backdrop" id="modal-soft">
-    <div class="modal">
-      <div class="modal-basket" style="background-image:url('basket-green.png');">
-        <img src="work-softdrinks.png" alt="Soft Drinks">
-      </div>
-      <div class="modal-text">
-        <div class="modal-close" data-close>&times;</div>
-        <h2>《Soft Drinks》</h2>
-        <div class="meta">類型：攝影 × 包裝設計</div>
-        <p>
-          將 2023–2025 間拍攝、收集到的酒罐照片重新設計，製作成一條可穿戴的絲巾，
-          並封裝於鋁罐中，以易開罐形式呈現。
-        </p>
-        <p>
-          觀者必須「開罐」才能取出絲巾，呼應酒精飲用的不可逆性。
-          標題 Soft Drinks 一方面指「軟飲／非酒精飲品」，另一方面也呼應絲巾本身柔軟的質地，
-          在酒精與非酒精、紀錄與穿戴之間建立一種有點ㄎㄧㄤ又溫柔的距離。
-        </p>
-      </div>
-    </div>
-  </div>
+<script>
+/* 作品資料 */
+const WORKS=[
+{id:'horsecard',cover:'work-horsecard.png',basket:'basket_red.png',title:{zh:'孤芳小隊 2026 馬年賀卡'},meta:{zh:'明信片／孔版印刷'},desc:{zh:'以馬年為主題，黏土手作、上色、分色孔版印刷。角色坐在搖搖馬上，象徵放慢腳步也沒關係。'}},
+{id:'hollow',cover:'work-hollow.png',basket:'basket_blue.png',title:{zh:'空心 IN PLACE'},meta:{zh:'攝影折頁小誌 × 水泥物件'},desc:{zh:'記錄城市裡被安放的空心磚。手工灌製水泥磚作為書衣，折頁象徵堆疊意象。'}},
+{id:'softdrinks',cover:'work-softdrinks.png',basket:'basket_orange.png',title:{zh:'Soft Drinks'},meta:{zh:'攝影 × 包裝設計'},desc:{zh:'2023–2025 的酒罐照片轉為絲巾並封入鋁罐，以不含酒精的柔軟形象對照飲酒的不可逆性。'}},
+{id:'thirty',cover:'work-30hours.png',basket:'basket_green.png',title:{zh:'30時間 2nd Edition'},meta:{zh:'攝影小誌（再販）｜A5'},desc:{zh:'以「30 小時制」觀察新宿／涉谷的城市節奏。2024 初版，2025 再編排再版。'}},
+{id:'handit',cover:'work-handit.png',basket:'basket_red.png',title:{zh:'Hand-it 手心貼'},meta:{zh:'文具設計'},desc:{zh:'怕忘記就寫在手上，於是做出可貼的手掌便利貼。'}},
+{id:'pastebook',cover:'work-pastebook.png',basket:'basket_blue.png',title:{zh:'PASTE BOOK 系列貼紙簿'},meta:{zh:'貼紙冊（A5）｜台灣篇／日本篇'},desc:{zh:'以「護照」為概念，街頭收集與留下的貼紙記錄。'}},
+{id:'questioncandle',cover:'work-questioncandle.png',basket:'basket_orange.png',title:{zh:'問號蠟燭籤'},meta:{zh:'張子｜半熟紙、毛根、紙張｜約 10 cm'},desc:{zh:'以台灣生日問號蠟燭為靈感，底座可抽籤：兩祝福一留白。'}},
+{id:'pipo',cover:'work-pipo.png',basket:'basket_green.png',title:{zh:'PIPO 君 張子'},meta:{zh:'立體角色張子｜約 20 cm'},desc:{zh:'以張子形式製作東京警視廳吉祥物「ピーポくん」。'}},
+{id:'radio',cover:'work-radio.png',basket:'basket_red.png',title:{zh:'孤芳收音機'},meta:{zh:'立體裝置｜約 25 cm'},desc:{zh:'以聲音作為共鳴象徵，描繪兩個角色在城市噪音中的連線。'}}
+];
 
-  <div class="modal-backdrop" id="modal-30h">
-    <div class="modal">
-      <div class="modal-basket" style="background-image:url('basket-yellow.png');">
-        <img src="work-30hours.png" alt="30時間 2nd Edition">
-      </div>
-      <div class="modal-text">
-        <div class="modal-close" data-close>&times;</div>
-        <h2>《30時間 2nd Edition》</h2>
-        <div class="meta">類型：攝影小誌（再販版）</div>
-        <p>
-          以「30 小時制」為概念，用底片記錄在新宿、澀谷之間遊走時的城市脈動。
-          初版於 2024 年製作，本次為 2025 年再編集版，重新調整照片節奏並設計新版 Logo。
-        </p>
-      </div>
-    </div>
-  </div>
+const grid=document.getElementById('workGrid');
 
-  <div class="modal-backdrop" id="modal-handit">
-    <div class="modal">
-      <div class="modal-basket" style="background-image:url('basket-red.png');">
-        <img src="work-handit.png" alt="Hand-it 手心貼">
-      </div>
-      <div class="modal-text">
-        <div class="modal-close" data-close>&times;</div>
-        <h2>《Hand-it 手心貼》</h2>
-        <div class="meta">類型：文具設計</div>
-        <p>
-          靈感來自「怕忘記的事就寫在手上」的習慣——結果洗半天都洗不掉。
-          於是索性做成一張真正的「手掌便利貼」，可以安心把 To-do 貼在桌上或電腦，
-          不用真的畫在手上。
-        </p>
-        <p>
-          名字 Hand-it 也像在說「Hand it！」大家一起手心貼手心。
-        </p>
-      </div>
-    </div>
-  </div>
+function renderGrid(){
+  grid.innerHTML=WORKS.map(w=>`
+  <article class="card" data-id="${w.id}">
+    <img class="star" src="sticker_yellow.png" alt="">
+    <img class="photo" src="${w.cover}" alt="">
+    <div class="name">${w.title.zh}</div>
+  </article>`).join('');
+}
+renderGrid();
 
-  <div class="modal-backdrop" id="modal-paste-tw">
-    <div class="modal">
-      <div class="modal-basket" style="background-image:url('basket-blue.png');">
-        <img src="work-pastebook-tw.png" alt="PASTE BOOK 台灣篇">
-      </div>
-      <div class="modal-text">
-        <div class="modal-close" data-close>&times;</div>
-        <h2>《PASTE BOOK》台灣篇</h2>
-        <div class="meta">類型：貼紙冊（A5）</div>
-        <p>
-          以「護照」為概念設計的貼紙旅行小冊。台灣篇收錄街頭貼紙、標語與公共設施細節，
-          將原本街上的物件重新轉化為貼紙，可以選擇「留在書裡」或「貼到哪裡都行」，
-          同時完成收集與帶走的動作。
-        </p>
-      </div>
-    </div>
-  </div>
+/* 作品彈窗互動 */
+const modal=document.getElementById('modal');
+const mdTitle=document.getElementById('mdTitle');
+const mdMeta=document.getElementById('mdMeta');
+const mdDesc=document.getElementById('mdDesc');
+const mdPhoto=document.getElementById('mdPhoto');
+const mdBasket=document.getElementById('mdBasket');
 
-  <div class="modal-backdrop" id="modal-paste-jp">
-    <div class="modal">
-      <div class="modal-basket" style="background-image:url('basket-green.png');">
-        <img src="work-pastebook-jp.png" alt="PASTE BOOK 日本篇">
-      </div>
-      <div class="modal-text">
-        <div class="modal-close" data-close>&times;</div>
-        <h2>《PASTE BOOK》日本篇</h2>
-        <div class="meta">類型：貼紙冊（A5）</div>
-        <p>
-          以東京街頭常見的角色、吉祥物與貼紙文化為靈感。將旅途中看到的標語與圖像拆解成
-          一張張貼紙，讓翻閱這本冊子像是在重新走一次街頭，同時自己再決定要把這些視覺
-          貼到哪裡。
-        </p>
-      </div>
-    </div>
-  </div>
+function openModal(id){
+  const w=WORKS.find(x=>x.id===id);if(!w)return;
+  mdTitle.textContent=w.title.zh;
+  mdMeta.textContent=w.meta.zh||'';
+  mdDesc.textContent=w.desc.zh||'';
+  mdPhoto.src=w.cover;
+  mdBasket.src=w.basket;
+  modal.classList.add('show');
+}
+function closeModal(){modal.classList.remove('show');}
 
-  <div class="modal-backdrop" id="modal-candle">
-    <div class="modal">
-      <div class="modal-basket" style="background-image:url('basket-yellow.png');">
-        <img src="work-questioncandle.png" alt="問號蠟燭籤">
-      </div>
-      <div class="modal-text">
-        <div class="modal-close" data-close>&times;</div>
-        <h2>「問號蠟燭籤」</h2>
-        <div class="meta">類型：張子裝置</div>
-        <p>
-          以台灣經典生日「問號蠟燭」為靈感，結合張子技法重新製作。
-          利用蠟燭底座的尖端穿破底部，可以從裡面抽出三張籤：
-          兩張寫有祝福，另一張留空，象徵「最後一個願望，總是留給自己」。
-        </p>
-        <p>
-          籤紙設計以打火機為主題，創造出「點燃」與「無法燃燒」之間的矛盾感。
-          蠟燭以半熟紙製作，無法真正點火，卻成為一種關於祈願與現實的溫柔隱喻。
-        </p>
-      </div>
-    </div>
-  </div>
+grid.addEventListener('click',e=>{
+  const c=e.target.closest('.card');if(!c)return;openModal(c.dataset.id);
+});
+modal.addEventListener('click',e=>{if(e.target.dataset.close)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-  <div class="modal-backdrop" id="modal-pipo">
-    <div class="modal">
-      <div class="modal-basket" style="background-image:url('basket-red.png');">
-        <img src="work-pipo.png" alt="PIPO君 張子">
-      </div>
-      <div class="modal-text">
-        <div class="modal-close" data-close>&times;</div>
-        <h2>PIPO君 張子</h2>
-        <div class="meta">類型：立體角色張子</div>
-        <p>
-          以東京警視廳吉祥物ピーポくん為靈感的張子作品，使用紙漿與壓克力顏料手工塑形與上色，
-          讓原本的宣導角色帶著一點玩具、公仔的質感，像是從電視畫面裡跳出來站在桌面上。
-        </p>
-      </div>
-    </div>
-  </div>
+/* 打卡滑道：隨捲動移動打卡紙＋第一次到底打卡一次 */
+const punchCard=document.getElementById('punchCard');
+const punchMachine=document.getElementById('punchMachine');
+const punchOverlay=document.getElementById('punchOverlay');
+const punchTimeEl=document.getElementById('punchTime');
+let hasPunched=false;
 
-  <script>
-    // 作品卡片 → 開啟對應 modal
-    document.querySelectorAll('.work-card').forEach(card=>{
-      card.addEventListener('click',()=>{
-        const id = card.getAttribute('data-target');
-        const modal = document.getElementById(id);
-        if(modal) modal.classList.add('active');
-      });
-    });
+function updatePunchFromScroll(){
+  const doc=document.documentElement;
+  const scrollTop=doc.scrollTop||document.body.scrollTop;
+  const scrollHeight=(doc.scrollHeight-doc.clientHeight)||1;
+  const ratio=Math.max(0,Math.min(1,scrollTop/scrollHeight)); // 0~1
 
-    // 關閉 modal（點 X 或背景）
-    document.querySelectorAll('.modal-backdrop').forEach(backdrop=>{
-      backdrop.addEventListener('click',e=>{
-        if(e.target === backdrop || e.target.hasAttribute('data-close')){
-          backdrop.classList.remove('active');
-        }
-      });
-    });
+  const viewH=window.innerHeight;
+  const topOffset=80;   // 打卡紙可滑動的起點
+  const bottomOffset=140; // 底部預留空間（避免壓到打卡機）
+  const travel=Math.max(0,viewH-topOffset-bottomOffset);
+  const posY=topOffset+travel*ratio;
 
-    // 語言按鈕（目前只是切 active 樣式，之後可補文案切換）
-    document.querySelectorAll('.lang-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        const lang = btn.getAttribute('data-lang');
-        document.documentElement.setAttribute('data-lang',lang);
-      });
-    });
+  punchCard.style.transform=`translate(-50%,${posY}px)`;
 
-    // 打卡滑軌 & 打卡機
-    let punched = false;
-    const punchCardEl = document.getElementById('punchCard');
-    const punchPopup = document.getElementById('punchPopup');
-    const punchTimeText = document.getElementById('punchTimeText');
-    const punchMachine = document.getElementById('punchMachine');
+  if(!hasPunched && ratio>=0.98){
+    hasPunched=true;
 
-    function updatePunchCard(){
-      const scrollTop = window.scrollY || window.pageYOffset;
-      const docHeight = document.body.scrollHeight - window.innerHeight;
-      const percent = docHeight<=0 ? 0 : scrollTop / docHeight;
-      const trackHeight = window.innerHeight - 220; // 讓卡片上下留一點空間
-      const moveY = percent * trackHeight + 80;
-      punchCardEl.style.transform = `translate(-50%, ${moveY}px)`;
+    // 打卡機抖一下
+    punchMachine.style.transform='translateX(-50%) translateY(-4px)';
+    setTimeout(()=>{
+      punchMachine.style.transform='translateX(-50%)';
+    },160);
 
-      // 98% 觸發打卡（只一次）
-      if(!punched && percent >= 0.98){
-        punched = true;
-        // 小抖動動畫
-        punchMachine.style.transform = 'translateX(-50%) translateY(-4px)';
-        setTimeout(()=>{ punchMachine.style.transform = 'translateX(-50%)'; },160);
+    showPunchOverlay();
+  }
+}
 
-        const now = new Date();
-        const pad = n=>String(n).padStart(2,'0');
-        const timeStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} `
-                       + `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-        punchTimeText.textContent = timeStr;
-        punchPopup.classList.add('active');
-      }
-    }
+function showPunchOverlay(){
+  const now=new Date();
+  const options={year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'};
+  punchTimeEl.textContent=now.toLocaleString('zh-TW',options);
+  punchOverlay.classList.add('show');
+}
 
-    window.addEventListener('scroll',updatePunchCard);
-    window.addEventListener('load',updatePunchCard);
+window.addEventListener('scroll',updatePunchFromScroll);
+window.addEventListener('load',updatePunchFromScroll);
+window.addEventListener('resize',updatePunchFromScroll);
 
-    // 點任意處關閉打卡彈窗
-    punchPopup.addEventListener('click',()=>punchPopup.classList.remove('active'));
-  </script>
+/* 點擊遮罩關閉，但不重置 hasPunched（只打卡一次） */
+punchOverlay.addEventListener('click',()=>{
+  punchOverlay.classList.remove('show');
+});
+
+/* 語言按鈕目前只做 active 樣式（文字之後補，再擴充邏輯即可） */
+const langBtns=document.querySelectorAll('.lang-btn');
+langBtns.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    langBtns.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
 </body>
 </html>
